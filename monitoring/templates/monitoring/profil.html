@@ -1,0 +1,52 @@
+{% extends 'monitoring/base.html' %}
+
+{% block judul %}Profil Saya | Tracker Tonasa{% endblock %}
+{% block heading %}Profil Saya{% endblock %}
+{% block deskripsi %}Kelola informasi dan kata sandi akun Anda.{% endblock %}
+{% block snapshot %}{% endblock %}
+
+{% block konten %}
+  {% for message in messages %}
+    <p class="profile-notice" role="status">{{ message }}</p>
+  {% endfor %}
+  <div class="profile-layout">
+    <section class="panel profile-card profile-identity" aria-labelledby="identitas-akun">
+      <div class="profile-hero">
+        <span class="profile-avatar profile-avatar-large" aria-hidden="true">{{ user.get_short_name|default:user.username|slice:':1'|upper }}</span>
+        <h2 id="identitas-akun">{{ user.get_full_name|default:user.username }}</h2>
+        <span class="profile-role">{% include 'monitoring/partials/ikon.html' with ikon='akses' only %}{% include 'monitoring/partials/peran.html' %}</span>
+      </div>
+      <dl class="profile-facts">
+        <div><dt>Nama pengguna</dt><dd>{{ user.username }}</dd></div>
+        <div><dt>Aplikasi</dt><dd>Tracker Tonasa · Dept. Of Project Management &amp; Main Support</dd></div>
+      </dl>
+    </section>
+    <div class="profile-settings">
+      <section class="panel profile-card" aria-labelledby="informasi-profil">
+        <header class="profile-card-heading">
+          <span class="profile-tile">{% include 'monitoring/partials/ikon.html' with ikon='orang' only %}</span>
+          <h2 id="informasi-profil">Informasi pribadi</h2>
+        </header>
+        <form class="profile-form" method="post" action="{% url 'monitoring:profil' %}">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="profile-field-grid">
+            {% for field in form %}
+              <div class="profile-field{% if field.name == 'email' %} profile-field-full{% endif %}">{{ field.as_field_group }}</div>
+            {% endfor %}
+          </div>
+          <div class="profile-form-actions"><button class="button primary" type="submit">Simpan perubahan</button></div>
+        </form>
+      </section>
+      {% if user.has_usable_password %}
+        <section class="panel profile-card profile-security" aria-labelledby="keamanan-akun">
+          <header class="profile-card-heading">
+            <span class="profile-tile">{% include 'monitoring/partials/ikon.html' with ikon='kunci' only %}</span>
+            <h2 id="keamanan-akun">Keamanan akun</h2>
+          </header>
+          <a class="button" href="{% url 'monitoring:ganti_sandi' %}">Ganti kata sandi</a>
+        </section>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

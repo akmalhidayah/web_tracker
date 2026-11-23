@@ -1,0 +1,19 @@
+{
+  "name": "tracker-tonasa-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@mapbox/vector-tile": "2.0.4",
+    "leaflet": "1.9.4",
+    "lucide-react": "0.544.0",
+    "pbf": "4.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  }
+}

@@ -1,0 +1,42 @@
+{% extends "admin/change_list.html" %}
+{% load admin_list %}
+
+{# Tombol tambah dipindahkan ke kartu judul (partials/panel_hero.html). #}
+{% block object-tools %}{% if not panel %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block search %}
+  {% if panel %}
+    <div class="panel-bar">
+      {% include 'monitoring/partials/panel_tab.html' %}
+      {% search_form cl %}
+    </div>
+    {% if panel.status %}
+      <div class="panel-status" role="group" aria-label="Status">
+        <span>Status</span>
+        {% for t in panel.status %}
+          <a href="{{ t.url }}"{% if t.aktif %} aria-current="true"{% endif %}>{{ t.label }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block result_list %}
+  {% if panel and not cl.result_count %}
+    <div class="panel-kosong">
+      <span class="panel-kosong-ikon">{% include 'monitoring/partials/ikon.html' with ikon='cari' only %}</span>
+      {% if cl.query or cl.has_active_filters %}
+        <strong>Tidak ada hasil</strong>
+        <p>Coba kata kunci lain atau ganti tab dan status yang dipilih.</p>
+        <a class="panel-tombol" href="?">Reset pencarian</a>
+      {% else %}
+        <strong>Belum ada data</strong>
+        <p>Data akan tampil di sini setelah ditambahkan.</p>
+      {% endif %}
+    </div>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}

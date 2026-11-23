@@ -1,0 +1,36 @@
+{% load aset navigasi %}
+{% menu_master as master_links %}
+<aside class="sidebar" id="sidebar-utama">
+  <a class="brand" href="{% url 'monitoring:monitoring' %}">
+    <img src="{% aset_versi 'monitoring/tracker-icon.png' %}" width="42" height="42" alt="">
+    <strong>Dashboard Admin</strong>
+  </a>
+  <nav aria-label="Menu utama">
+    <span class="nav-label">Operasional</span>
+    <a class="nav-item" href="{% url 'monitoring:monitoring' %}"{% if menu == 'monitoring' %} aria-current="page"{% endif %}>
+      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='monitoring' only %}</span>Monitoring
+    </a>
+    <a class="nav-item" href="{% url 'monitoring:laporan' %}"{% if menu == 'laporan' %} aria-current="page"{% endif %}>
+      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='laporan' only %}</span>Laporan
+    </a>
+    {% if master_links %}
+      <span class="nav-label nav-label-secondary">Pengelolaan</span>
+      <details class="master-nav"{% if request.resolver_match.namespace == 'admin' %} open{% endif %}>
+        <summary class="nav-item">
+          <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='master' only %}</span>
+          Data Master
+          <span class="disclosure-arrow">{% include 'monitoring/partials/ikon.html' with ikon='chevron' only %}</span>
+        </summary>
+        <ul>
+          {% for link in master_links %}
+            <li>
+              <a class="nav-item" href="{{ link.url }}"{% if request.path == link.url %} aria-current="page"{% elif link.current %} aria-current="location"{% endif %}>
+                <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon=link.icon only %}</span>{{ link.label }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </details>
+    {% endif %}
+  </nav>
+</aside>

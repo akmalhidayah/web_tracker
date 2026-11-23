@@ -1,0 +1,34 @@
+{% load admin_urls navigasi %}
+{# Kartu judul bersama untuk semua halaman Ekspeditur, Truk, Pengemudi, dan User Panel. #}
+<section class="panel-hero">
+  <div class="panel-hero-baris">
+    <span class="panel-hero-ikon">{% panel_ikon opts as nama_ikon %}{% include 'monitoring/partials/ikon.html' with ikon=nama_ikon only %}</span>
+    <div class="panel-hero-teks">
+      <h1>{% if cl %}{{ panel.judul|default:opts.verbose_name_plural|capfirst }}{% elif deleted_objects %}{{ title }} {{ object_name }}{% else %}{{ title }}{% endif %}</h1>
+      {% if cl and panel.deskripsi %}<p>{{ panel.deskripsi }}</p>{% elif subtitle %}<p>{{ subtitle }}</p>{% elif deleted_objects %}<p>{{ object }}</p>{% endif %}
+    </div>
+    {% if cl and has_add_permission %}
+      {% url opts|admin_urlname:'add' as alamat_tambah %}
+      <a class="panel-tombol panel-tombol-utama panel-tambah" href="{{ alamat_tambah }}{% if is_popup %}?_popup=1{% endif %}">
+        {% include 'monitoring/partials/ikon.html' with ikon='tambah' only %}Tambah {{ panel.tambah|default:opts.verbose_name }}
+      </a>
+    {% endif %}
+  </div>
+  {% if cl and user.is_superuser and opts.app_label == 'auth' %}
+    <nav class="panel-hero-nav" aria-label="Pengelolaan akses">
+      <a href="{% url 'admin:auth_user_changelist' %}"{% if opts.model_name == 'user' %} aria-current="page"{% endif %}>Pengguna</a>
+      <a href="{% url 'admin:auth_group_changelist' %}"{% if opts.model_name == 'group' %} aria-current="page"{% endif %}>Grup &amp; izin</a>
+    </nav>
+  {% endif %}
+</section>
+{% if cl and panel.kartu %}
+  <div class="panel-kartu">
+    {% for k in panel.kartu %}
+      <div class="panel-kartu-item">
+        <span class="panel-kartu-label">{{ k.label }}</span>
+        <strong>{{ k.nilai }}</strong>
+        <span class="panel-kartu-ket">{{ k.keterangan }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

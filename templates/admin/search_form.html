@@ -1,0 +1,15 @@
+{% load i18n %}
+{% if cl.search_fields %}
+<div id="toolbar"><form id="changelist-search" method="get" role="search">
+<div class="panel-cari">
+  <label for="searchbar" class="visually-hidden">{% translate 'Search' %}</label>
+  <span class="panel-cari-ikon">{% include 'monitoring/partials/ikon.html' with ikon='cari' only %}</span>
+  <input type="text" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" placeholder="{{ cl.model_admin.panel_cari|default:'Cari…' }}" autocomplete="off">
+  <button type="submit" class="panel-tombol panel-tombol-utama">{% include 'monitoring/partials/ikon.html' with ikon='cari' only %}Cari</button>
+  <a class="panel-tombol" href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% endif %}">{% include 'monitoring/partials/ikon.html' with ikon='ulang' only %}Reset</a>
+  {% for pair in cl.params.items %}
+    {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
+  {% endfor %}
+</div>
+</form></div>
+{% endif %}

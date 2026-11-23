@@ -1,0 +1,26 @@
+{% extends 'monitoring/base.html' %}
+
+{% block judul %}Ganti Kata Sandi | Tracker Tonasa{% endblock %}
+{% block heading %}Ganti kata sandi{% endblock %}
+{% block deskripsi %}Masukkan kata sandi saat ini dan buat kata sandi baru.{% endblock %}
+{% block snapshot %}{% endblock %}
+
+{% block konten %}
+  <section class="panel profile-card password-card" aria-labelledby="keamanan-akun">
+    <header class="profile-card-heading">
+      <span class="profile-tile">{% include 'monitoring/partials/ikon.html' with ikon='kunci' only %}</span>
+      <h2 id="keamanan-akun">Keamanan akun</h2>
+    </header>
+    <form class="profile-form" method="post" action="{% url 'monitoring:ganti_sandi' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="profile-field">{{ field.as_field_group }}</div>
+      {% endfor %}
+      <div class="profile-form-actions">
+        <a class="button" href="{% url 'monitoring:profil' %}">Kembali ke profil</a>
+        <button class="button primary" type="submit">Simpan kata sandi</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

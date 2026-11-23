@@ -1,0 +1,1 @@
+{% if user.is_superuser %}Administrator{% elif user.is_staff %}Staf{% else %}Operator{% endif %}

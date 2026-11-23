@@ -1,0 +1,59 @@
+<section id="riwayat-armada" class="panel report-history" aria-labelledby="judul-riwayat-armada">
+  <div class="panel-heading">
+    <h2 id="judul-riwayat-armada">Laporan harian per ekspeditur</h2>
+    <form class="report-history-filter" method="get" action="{% url 'monitoring:laporan' %}#riwayat-armada">
+      <label for="tanggal-laporan">Tanggal</label>
+      <input type="date" id="tanggal-laporan" name="tanggal"
+        value="{{ riwayat.dipilih|date:'Y-m-d' }}" max="{{ riwayat.hari_ini|date:'Y-m-d' }}" required>
+      <button type="submit" class="button">Tampilkan</button>
+    </form>
+  </div>
+  <div class="table-wrap report-history-scroll" role="region" aria-labelledby="judul-riwayat-armada" tabindex="0">
+    <table class="report-history-table">
+      <caption class="visually-hidden">Realisasi harian per ekspeditur pada {{ riwayat.dipilih|date:'j F Y' }} WITA</caption>
+      <colgroup span="1"></colgroup>
+      <colgroup span="2"></colgroup>
+      <colgroup span="2"></colgroup>
+      <colgroup span="2"></colgroup>
+      <colgroup span="2"></colgroup>
+      <thead>
+        <tr>
+          <th class="history-sticky" scope="col" rowspan="2">Ekspeditur</th>
+          <th class="history-group" scope="colgroup" colspan="2">Pengiriman</th>
+          <th class="history-group" scope="colgroup" colspan="2">Armada</th>
+          <th class="history-group" scope="colgroup" colspan="2">Ritase</th>
+          <th scope="col" rowspan="2">Rata-rata ritase <small>ret/unit</small></th>
+          <th scope="col" rowspan="2">Muatan armada <small>ton/ret</small></th>
+        </tr>
+        <tr>
+          <th scope="col">Volume pengiriman <small>ton</small></th>
+          <th scope="col">Capaian</th>
+          <th scope="col">Armada operasi <small>unit</small></th>
+          <th scope="col">Capaian</th>
+          <th scope="col">Jumlah ritase <small>ret</small></th>
+          <th scope="col">Capaian</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in riwayat.baris %}
+          {% include 'monitoring/partials/baris_laporan_harian.html' with item=item only %}
+        {% endfor %}
+      </tbody>
+      {% if riwayat.total %}
+        <tfoot>
+          {% include 'monitoring/partials/baris_laporan_harian.html' with item=riwayat.total only %}
+        </tfoot>
+      {% endif %}
+    </table>
+  </div>
+  {% if not riwayat.baris %}
+    <p class="report-history-empty">
+      Belum ada data untuk {{ riwayat.dipilih|date:'j F Y' }}.
+      {% if riwayat.contoh %}
+        <a class="text-link" href="{% url 'monitoring:laporan' %}?tanggal={{ riwayat.contoh|date:'Y-m-d' }}#riwayat-armada">
+          Lihat data contoh {{ riwayat.contoh|date:'j F Y' }}
+        </a>
+      {% endif %}
+    </p>
+  {% endif %}
+</section>

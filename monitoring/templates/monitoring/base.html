@@ -1,0 +1,37 @@
+{% load aset %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block judul %}Tracker Tonasa{% endblock %}</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{% aset_versi 'monitoring/favicon.png' %}">
+  {% block aset %}{% endblock %}
+  <link rel="stylesheet" href="{% aset_versi 'monitoring/dashboard.css' %}">
+  <script src="{% aset_versi 'monitoring/navigasi.js' %}" defer></script>
+</head>
+<body class="dashboard-shell">
+  <a class="skip-link" href="#konten">Lewati ke konten</a>
+  {% include 'monitoring/partials/sidebar.html' %}
+  <div class="workspace">
+    {% include 'monitoring/partials/topbar.html' %}
+    <main id="konten" class="{% block kelas_konten %}{% endblock %}">
+      {% block pengantar %}
+        <header class="page-heading">
+          <div>
+            <h1>{% block heading %}{% endblock %}</h1>
+            <p>{% block deskripsi %}{% endblock %}</p>
+          </div>
+          {% block snapshot %}
+            <div class="snapshot">
+              <span class="demo-label">Data contoh</span>
+              <time datetime="{{ waktu|date:'c' }}">{{ waktu|date:'j F Y, H.i' }} WITA</time>
+            </div>
+          {% endblock %}
+        </header>
+      {% endblock %}
+      {% block konten %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

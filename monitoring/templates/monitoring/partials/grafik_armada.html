@@ -1,0 +1,56 @@
+<div class="report-plots">
+  <div class="report-plot report-plot-vendors" role="region" aria-label="Grafik per ekspeditur" tabindex="0">
+    <svg viewBox="0 0 546 203" role="img" aria-labelledby="chart-vendors-title">
+      <title id="chart-vendors-title">Ready, operasi, utilisasi, dan ritase per ekspeditur</title>
+      <text class="chart-axis-heading" x="8" y="16">Unit armada</text>
+      <text class="chart-axis-heading chart-trip-text" x="538" y="16" text-anchor="end">Ritase</text>
+      {% for tick in grafik.skala %}
+        <line class="chart-gridline" x1="38" x2="506" y1="{{ tick.y }}" y2="{{ tick.y }}"/>
+        <text class="chart-tick" x="30" y="{{ tick.y }}" dy=".33em" text-anchor="end">{{ tick.unit }}</text>
+        <text class="chart-tick chart-trip-text" x="514" y="{{ tick.y }}" dy=".33em">{{ tick.ritase }}</text>
+      {% endfor %}
+      {% for item in grafik.per_ekspeditur %}
+        <g>
+          <title>{{ item.nama }}: {{ item.ready.nilai }} ready, {{ item.operasi.nilai }} operasi, {{ item.utilisasi }}% utilisasi, {{ item.ritase }} ritase</title>
+          {% include 'monitoring/partials/batang_laporan.html' with batang=item.ready jenis='ready' only %}
+          {% include 'monitoring/partials/batang_laporan.html' with batang=item.operasi jenis='operasi' only %}
+          <text class="chart-category" x="{{ item.x }}" y="194" text-anchor="middle">{{ item.singkat }}</text>
+          <g transform="translate({{ item.badge_x }} {{ item.badge_y }})">
+            <rect class="chart-util-box" x="-17" y="-9" width="34" height="16" rx="4"/>
+            <text class="chart-util-text" text-anchor="middle" dy=".25em">{{ item.utilisasi }}%</text>
+            <path class="chart-util-indicator" d="M-3 16l3-5 3 5Z"/>
+          </g>
+        </g>
+      {% endfor %}
+      <polyline class="chart-trip-line" points="{{ grafik.garis_ritase }}"/>
+      {% for item in grafik.per_ekspeditur %}
+        <circle class="chart-trip-dot" cx="{{ item.ritase_x }}" cy="{{ item.ritase_y }}" r="3.25"/>
+        <text class="chart-trip-value" x="{{ item.ritase_x }}" y="{{ item.ritase_label_y }}" text-anchor="middle">{{ item.ritase }}</text>
+      {% endfor %}
+    </svg>
+  </div>
+  <div class="report-plot report-plot-total">
+    <svg viewBox="0 0 146 203" role="img" aria-labelledby="chart-total-title">
+      <title id="chart-total-title">Total {{ grafik.total.ready.nilai }} armada ready, {{ grafik.total.operasi.nilai }} operasi, dan {{ grafik.total.utilisasi }}% utilisasi</title>
+      <text class="chart-axis-heading" x="8" y="16">Unit armada</text>
+      {% for tick in grafik.total.skala %}
+        <line class="chart-gridline" x1="33" x2="135" y1="{{ tick.y }}" y2="{{ tick.y }}"/>
+        <text class="chart-tick" x="25" y="{{ tick.y }}" dy=".33em" text-anchor="end">{{ tick.unit }}</text>
+      {% endfor %}
+      {% include 'monitoring/partials/batang_laporan.html' with batang=grafik.total.ready jenis='ready' only %}
+      {% include 'monitoring/partials/batang_laporan.html' with batang=grafik.total.operasi jenis='operasi' only %}
+      <g transform="translate({{ grafik.total.operasi.label_x }} {{ grafik.total.badge_y }})">
+        <rect class="chart-util-box" x="-17" y="-9" width="34" height="16" rx="4"/>
+        <text class="chart-util-text" text-anchor="middle" dy=".25em">{{ grafik.total.utilisasi }}%</text>
+        <path class="chart-util-indicator" d="M-3 16l3-5 3 5Z"/>
+      </g>
+      <text class="chart-category" x="74" y="194" text-anchor="middle">Total armada</text>
+    </svg>
+  </div>
+</div>
+<ul class="report-chart-legend" aria-label="Legenda grafik">
+  <li><span class="swatch-ready"></span>Ready</li>
+  <li><span class="swatch-operasi"></span>Operasi</li>
+  <li><span class="swatch-utilisasi"></span>Utilisasi</li>
+  <li><span class="swatch-ritase"></span>Ritase</li>
+</ul>

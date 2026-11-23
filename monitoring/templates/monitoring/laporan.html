@@ -1,0 +1,80 @@
+{% extends 'monitoring/base.html' %}
+{% load tz %}
+
+{% block judul %}Monitoring Armada per Ekspeditur | Tracker Tonasa{% endblock %}
+
+{% block pengantar %}
+  <header class="panel report-heading">
+    <div class="report-heading-main">
+      <span class="report-heading-icon">{% include 'monitoring/partials/ikon.html' with ikon='laporan' only %}</span>
+      <h1>Monitoring Armada per Ekspeditur</h1>
+    </div>
+    <time class="report-heading-meta" datetime="{{ waktu|timezone:'Asia/Makassar'|date:'c' }}">
+      {{ waktu|timezone:'Asia/Makassar'|date:'j F Y' }},
+      <span>{{ waktu|timezone:'Asia/Jakarta'|date:'H:i' }} WIB / {{ waktu|timezone:'Asia/Makassar'|date:'H:i' }} WITA</span>
+    </time>
+  </header>
+{% endblock %}
+
+{% block konten %}
+  <div class="report-visuals">
+    <section class="panel report-chart" aria-labelledby="judul-grafik-armada">
+      <div class="panel-heading">
+        <h2 id="judul-grafik-armada">Grafik realisasi armada</h2>
+      </div>
+      {% include 'monitoring/partials/grafik_armada.html' with grafik=grafik only %}
+    </section>
+
+    <section class="panel report-summary" aria-labelledby="judul-ekspeditur">
+      <div class="panel-heading">
+        <h2 id="judul-ekspeditur">Realisasi per ekspeditur</h2>
+      </div>
+      <div class="table-wrap" role="region" aria-labelledby="judul-ekspeditur" tabindex="0">
+        <table>
+          <colgroup span="1"></colgroup>
+          <colgroup span="3"></colgroup>
+          <colgroup span="3"></colgroup>
+          <thead>
+            <tr>
+              <th scope="col" rowspan="2">Ekspeditur</th>
+              <th class="armada-group" scope="colgroup" colspan="3">Armada</th>
+              <th scope="col" rowspan="2">Ritase</th>
+              <th scope="col" rowspan="2">Rata-rata<br>ritase</th>
+              <th scope="col" rowspan="2">Volume<br>(ton)</th>
+            </tr>
+            <tr>
+              <th scope="col">Ready</th>
+              <th scope="col">Operasi</th>
+              <th scope="col">Utilisasi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in baris %}
+              <tr>
+                <th scope="row">{{ item.nama }}</th>
+                <td>{{ item.ready }}</td>
+                <td>{{ item.operasi }}</td>
+                <td><span class="report-utilisasi{% if not item.utilisasi %} is-zero{% endif %}">{{ item.utilisasi }}%</span></td>
+                <td>{{ item.ritase }}</td>
+                <td>{% if item.rata_ritase is None %}—{% else %}{{ item.rata_ritase|floatformat:1 }}{% endif %}</td>
+                <td>{{ item.volume }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total armada</th>
+              <td>{{ total.ready }}</td>
+              <td>{{ total.operasi }}</td>
+              <td>{{ total.utilisasi }}%</td>
+              <td>{{ total.ritase }}</td>
+              <td>{% if total.rata_ritase is None %}—{% else %}{{ total.rata_ritase|floatformat:1 }}{% endif %}</td>
+              <td>{{ total.volume }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  </div>
+  {% include 'monitoring/partials/riwayat_armada.html' with riwayat=riwayat only %}
+{% endblock %}

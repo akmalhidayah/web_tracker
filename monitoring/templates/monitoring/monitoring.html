@@ -1,0 +1,21 @@
+{% extends 'monitoring/base.html' %}
+{% load aset %}
+
+{% block judul %}Monitoring Armada | Tracker Tonasa{% endblock %}
+{% block kelas_konten %}monitoring-content{% endblock %}
+{% block pengantar %}
+  <h1 class="visually-hidden">Monitoring Armada</h1>
+{% endblock %}
+
+{% block aset %}
+  <link rel="stylesheet" href="{% aset_versi 'monitoring/app/monitoring.css' %}">
+  <script type="module" src="{% aset_versi 'monitoring/app/monitoring.js' %}"></script>
+{% endblock %}
+
+{% block konten %}
+  {{ peta|json_script:'data-armada' }}
+  <div id="monitoring-app">
+    <div class="panel loading-state" role="status">Memuat peta armada…</div>
+  </div>
+  <noscript>Aktifkan JavaScript untuk menggunakan peta dan filter armada.</noscript>
+{% endblock %}

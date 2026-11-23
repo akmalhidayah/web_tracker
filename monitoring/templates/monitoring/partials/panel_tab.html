@@ -1,0 +1,7 @@
+{% if panel.tab %}
+  <nav class="panel-tab" aria-label="Saring daftar">
+    {% for t in panel.tab %}
+      <a href="{{ t.url }}"{% if t.aktif %} aria-current="true"{% endif %}>{{ t.label }}<span class="panel-tab-jumlah">{{ t.jumlah }}</span></a>
+    {% endfor %}
+  </nav>
+{% endif %}

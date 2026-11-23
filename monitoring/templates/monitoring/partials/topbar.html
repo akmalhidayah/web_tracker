@@ -1,0 +1,35 @@
+{% load static %}
+<header class="topbar">
+  <button type="button" class="sidebar-toggle" aria-controls="sidebar-utama" aria-label="Tutup menu navigasi" aria-expanded="true" hidden>
+    <span class="sidebar-toggle-open">{% include 'monitoring/partials/ikon.html' with ikon='menu' only %}</span>
+    <span class="sidebar-toggle-close">{% include 'monitoring/partials/ikon.html' with ikon='tutup' only %}</span>
+  </button>
+  <div class="topbar-brand">
+    <div class="logos topbar-logos">
+      <span><img src="{% static 'monitoring/logo_sig.png' %}" width="29" height="27" alt="SIG"></span>
+      <span><img src="{% static 'monitoring/logo_semen_tonasa.png' %}" width="27" height="27" alt="Semen Tonasa"></span>
+    </div>
+    <div class="topbar-brand-text"><strong>Tracker Clinker Tonasa</strong><small>Dept. Of Project Management &amp; Main Support</small></div>
+  </div>
+  {% if user.is_authenticated %}
+    <details class="profile-menu">
+      <summary class="profile-trigger" aria-label="Menu akun: {{ user.get_short_name|default:user.username }}">
+        <span class="profile-avatar" aria-hidden="true">{{ user.get_short_name|default:user.username|slice:':1'|upper }}</span>
+        <span class="profile-trigger-text">
+          <strong>{{ user.get_short_name|default:user.username }}</strong>
+          <small>{% include 'monitoring/partials/peran.html' %}</small>
+        </span>
+        <span class="disclosure-arrow">{% include 'monitoring/partials/ikon.html' with ikon='chevron' only %}</span>
+      </summary>
+      <div class="profile-dropdown">
+        <a href="{% url 'monitoring:profil' %}"{% if request.resolver_match.url_name == 'profil' %} aria-current="page"{% endif %}>
+          {% include 'monitoring/partials/ikon.html' with ikon='orang' only %} Profil Saya
+        </a>
+        <form method="post" action="{% url 'monitoring:keluar' %}">
+          {% csrf_token %}
+          <button type="submit">{% include 'monitoring/partials/ikon.html' with ikon='keluar' only %} Keluar</button>
+        </form>
+      </div>
+    </details>
+  {% endif %}
+</header>

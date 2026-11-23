@@ -1,0 +1,18 @@
+<tr>
+  <th class="history-sticky" scope="row">{{ item.nama }}</th>
+  {% for metrik in item.metrik %}
+    <td>
+      {{ metrik.nilai|floatformat:"0g" }}
+      <small class="history-target">Target {{ metrik.target|floatformat:"0g" }}</small>
+    </td>
+    <td>
+      {% if metrik.capaian is None %}
+        <span class="history-unavailable">—</span>
+      {% else %}
+        <span class="history-capaian{% if metrik.capaian >= 100 %} history-good{% endif %}">{{ metrik.capaian }}%</span>
+      {% endif %}
+    </td>
+  {% endfor %}
+  <td>{% if item.rata_ritase is None %}<span class="history-unavailable">—</span>{% else %}{{ item.rata_ritase|floatformat:"1g" }}{% endif %}</td>
+  <td>{% if item.muatan is None %}<span class="history-unavailable">—</span>{% else %}{{ item.muatan|floatformat:"1g" }}{% endif %}</td>
+</tr>

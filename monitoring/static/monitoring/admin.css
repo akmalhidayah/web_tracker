@@ -1,0 +1,388 @@
+:root {
+  --font-family-primary: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --primary: var(--accent);
+  --secondary: var(--accent-ink);
+  --primary-fg: var(--ink);
+  --body-fg: var(--ink);
+  --body-bg: var(--paper);
+  --body-quiet-color: var(--muted);
+  --body-medium-color: var(--muted);
+  --body-loud-color: var(--ink);
+  --header-bg: var(--accent-pale);
+  --header-link-color: var(--accent-ink);
+  --breadcrumbs-fg: var(--muted);
+  --breadcrumbs-link-fg: var(--accent-ink);
+  --breadcrumbs-bg: var(--paper);
+  --link-fg: var(--accent-ink);
+  --link-selected-fg: var(--accent-ink);
+  --link-hover-color: #623308;
+  --hairline-color: var(--line);
+  --border-color: var(--line);
+  --darkened-bg: #f7f8fb;
+  --selected-bg: var(--accent-pale);
+  --selected-row: var(--accent-pale);
+  --button-fg: var(--accent-ink);
+  --button-bg: var(--accent-pale);
+  --button-hover-bg: #ffe6be;
+  --default-button-bg: var(--accent);
+  --default-button-hover-bg: #f2a237;
+  --close-button-bg: #eef1f6;
+  --close-button-hover-bg: #e3e8ef;
+  --object-tools-fg: var(--accent-ink);
+  --object-tools-bg: var(--accent-pale);
+  --object-tools-hover-bg: #ffe6be;
+  --message-success-bg: #e5f5ec;
+  --message-warning-bg: #fff1dc;
+}
+
+body { display: block; height: auto; background: var(--background); accent-color: var(--accent); }
+body.login #container {
+  width: min(440px, calc(100% - 32px));
+  min-width: 0;
+  margin-block: clamp(30px, 14vh, 100px);
+  border-radius: 13px;
+  box-shadow: 0 1px 2px #152c4210;
+}
+.login #header { background: var(--paper); border-bottom: 1px solid var(--line); }
+.login #header .brand { color: var(--ink); }
+.login #content { padding: 24px; }
+.login .submit-row { background: var(--paper); border: 0; }
+
+.tonasa-admin #container {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 100vh;
+}
+.tonasa-admin #container > #main { display: block; min-width: 0; }
+.tonasa-admin #footer:empty { display: none; }
+.tonasa-admin .sidebar .brand { color: white; }
+.tonasa-admin .topbar .profile-dropdown :is(a, button) { color: var(--ink); }
+.tonasa-admin .topbar .profile-dropdown :is(a, button):hover { color: var(--chrome-strong); }
+.tonasa-admin div.breadcrumbs { padding: 12px clamp(16px, 2.2vw, 36px) 0; overflow-wrap: anywhere; }
+.tonasa-admin main.content { padding: 0; }
+.tonasa-admin #content { width: auto; padding: clamp(16px, 2.2vw, 36px); }
+.tonasa-admin #content h1 {
+  margin: 0 0 18px;
+  color: var(--ink);
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.038em;
+  overflow-wrap: anywhere;
+}
+.tonasa-admin ul.messagelist { margin-top: 12px; }
+.tonasa-admin ul.messagelist li { font-size: .875rem; }
+
+.tonasa-admin .object-tools {
+  float: none;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+.tonasa-admin .object-tools:empty { display: none; }
+.tonasa-admin .object-tools li { float: none; height: auto; margin: 0; }
+.tonasa-admin .object-tools a { border-radius: 8px; padding: 9px 12px; font-size: .875rem; text-transform: none; }
+.tonasa-admin .object-tools a.addlink { padding: 9px 12px; background-image: none; }
+
+.tonasa-admin #changelist {
+  min-height: 0;
+  gap: 14px;
+  margin: 0;
+  background: transparent;
+}
+.tonasa-admin .changelist-form-container,
+.tonasa-admin #changelist-filter,
+.tonasa-admin fieldset.module,
+.tonasa-admin #content-related .module,
+.tonasa-admin .app-auth.module,
+.tonasa-admin .app-monitoring.module {
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  box-shadow: 0 1px 2px #152c4210;
+}
+.tonasa-admin #changelist-filter { margin: 0; flex-basis: 205px; overflow: hidden; }
+.tonasa-admin #changelist-filter h2, .tonasa-admin .module caption,
+.tonasa-admin fieldset .fieldset-heading, .tonasa-admin .module > h2 {
+  padding: 12px 16px;
+  color: var(--ink);
+  background: var(--darkened-bg);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  text-transform: none;
+  font-size: .875rem;
+  font-weight: 650;
+}
+.tonasa-admin .module caption a { color: var(--ink); }
+.tonasa-admin #toolbar {
+  padding: 12px 14px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 13px 13px 0 0;
+  background: var(--paper);
+}
+.tonasa-admin #changelist-search > div { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+.tonasa-admin #toolbar form #searchbar { flex: 1 1 160px; width: auto; min-width: 0; max-width: 360px; height: 36px; margin: 0; padding: 7px 10px; }
+.tonasa-admin #toolbar input[type="submit"], .tonasa-admin #changelist .actions .button { min-height: 34px; box-shadow: none; border-radius: 8px; }
+.tonasa-admin #changelist .actions { margin: 0; padding: 10px 14px; background: var(--paper); gap: 8px; }
+.tonasa-admin #changelist .actions select { max-width: 100%; min-height: 34px; }
+.tonasa-admin #changelist .actions label { flex-wrap: wrap; }
+.tonasa-admin #changelist .paginator { padding: 12px 14px; border-radius: 0 0 13px 13px; border-bottom: 0; }
+.tonasa-admin #result_list th, .tonasa-admin #result_list td { font-size: .875rem; }
+.tonasa-admin #result_list td, .tonasa-admin #result_list tbody th { padding: 12px 10px; }
+.tonasa-admin #result_list thead th { background: var(--darkened-bg); }
+.tonasa-admin #result_list thead th a { color: var(--ink); }
+.tonasa-admin #result_list tbody tr:hover { background: #fafbfd; }
+
+.tonasa-admin:not(.dashboard) .colM #content-main form { max-width: 940px; }
+.tonasa-admin fieldset.module { overflow: hidden; }
+.tonasa-admin fieldset.module .form-row { padding: 15px 16px; }
+.tonasa-admin fieldset.module .form-row:last-child { border-bottom: 0; }
+.tonasa-admin .aligned label { color: var(--ink); font-size: .875rem; }
+.tonasa-admin .aligned input:not([type="checkbox"], [type="radio"]),
+.tonasa-admin .aligned select, .tonasa-admin .aligned textarea {
+  min-height: 36px;
+  border-radius: 8px;
+  max-width: 100%;
+}
+.tonasa-admin .aligned .vTextField { width: min(100%, 390px); }
+.tonasa-admin .aligned select[multiple] { padding: 0; }
+.tonasa-admin .submit-row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding: 13px;
+  border-radius: 13px;
+  background: var(--paper);
+}
+.tonasa-admin .submit-row :is(input, a) { margin: 0; border-radius: 8px; }
+.tonasa-admin input[type="submit"].default { color: var(--ink); }
+.tonasa-admin a.deletelink { color: white; }
+
+/* ===== Panel pengelolaan: Ekspeditur, Truk, Pengemudi, User Panel ===== */
+.tonasa-admin .panel-hero {
+  margin: 0 0 16px;
+  padding: 20px clamp(16px, 2.2vw, 28px);
+  background: linear-gradient(135deg, var(--chrome-light), #fff 80%);
+  border: 1px solid #f3d2d6;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px #a61b2912;
+}
+.panel-hero-baris { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+.panel-hero-ikon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  color: var(--chrome);
+  background: #fff;
+  border: 1px solid #f3d2d6;
+  border-radius: 12px;
+}
+.panel-hero-ikon svg { width: 22px; height: 22px; }
+.panel-hero-teks { flex: 1 1 220px; min-width: 0; }
+.tonasa-admin #content .panel-hero h1 { margin: 0; font-size: clamp(1.35rem, 2.4vw, 1.7rem); }
+.panel-hero-teks p { margin-top: 3px; color: var(--muted); font-size: .875rem; line-height: 1.45; }
+.panel-tambah { margin-left: auto; }
+.panel-hero-nav {
+  display: inline-flex;
+  gap: 4px;
+  max-width: 100%;
+  margin-top: 16px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid #f3d2d6;
+  border-radius: 12px;
+}
+
+.tonasa-admin .panel-tombol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 16px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: .875rem;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tonasa-admin .panel-tombol:hover { background: var(--darkened-bg); }
+.tonasa-admin .panel-tombol-utama { color: #fff; background: var(--chrome); border-color: var(--chrome); }
+.tonasa-admin .panel-tombol-utama:hover { color: #fff; background: var(--chrome-strong); border-color: var(--chrome-strong); }
+.panel-tombol svg { flex: none; }
+
+.panel-kartu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.panel-kartu-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 16px 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px #152c4210;
+}
+.panel-kartu-label { color: var(--muted); font-size: .68rem; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
+.panel-kartu-item strong { color: var(--ink); font-size: 1.9rem; line-height: 1.1; letter-spacing: -.03em; }
+.panel-kartu-ket { color: var(--muted); font-size: .78rem; line-height: 1.4; }
+
+.tonasa-admin .changelist-form-container { overflow: hidden; border-radius: 16px; }
+.panel-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px; }
+.panel-tab, .panel-hero-nav { scrollbar-width: thin; }
+.panel-tab {
+  display: flex;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px;
+  overflow-x: auto;
+  background: var(--background);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.tonasa-admin :is(.panel-tab, .panel-hero-nav) a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  color: var(--muted);
+  border-radius: 9px;
+  font-size: .875rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tonasa-admin :is(.panel-tab, .panel-hero-nav) a:hover { color: var(--ink); background: #e9edf3; }
+.tonasa-admin :is(.panel-tab, .panel-hero-nav) a[aria-current] { color: #fff; background: var(--chrome); }
+.panel-tab-jumlah { padding: 1px 7px; color: var(--muted); background: #e3e7ee; border-radius: 99px; font-size: .72rem; }
+.panel-tab a[aria-current] .panel-tab-jumlah { color: #fff; background: #ffffff33; }
+
+.tonasa-admin .panel-bar #toolbar { flex: 0 1 auto; margin: 0 0 0 auto; padding: 0; background: transparent; border: 0; border-radius: 0; }
+.panel-cari { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.panel-cari-ikon { position: absolute; left: 12px; top: 20px; display: flex; color: var(--muted); transform: translateY(-50%); pointer-events: none; }
+.tonasa-admin #toolbar form #searchbar {
+  flex: 1 1 260px;
+  width: 300px;
+  max-width: 100%;
+  height: 40px;
+  padding: 0 12px 0 38px;
+  margin: 0;
+  border-radius: 10px;
+}
+
+.panel-status { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; color: var(--muted); font-size: .8125rem; font-weight: 650; }
+.panel-status span { margin-right: 4px; }
+.tonasa-admin .panel-status a { padding: 4px 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; text-decoration: none; }
+.tonasa-admin .panel-status a:hover { background: var(--darkened-bg); }
+.tonasa-admin .panel-status a[aria-current] { color: var(--chrome-strong); background: var(--chrome-light); border-color: #f0c4ca; }
+
+.tonasa-admin #changelist:has(.panel-bar) #changelist-filter { display: none; }
+.tonasa-admin #changelist:has(.panel-bar) #result_list thead th {
+  padding: 12px 10px;
+  color: var(--muted);
+  font-size: .7rem;
+  font-weight: 650;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.tonasa-admin #changelist:has(.panel-bar) #result_list thead th a { color: inherit; }
+.tonasa-admin #changelist:has(.panel-bar) #result_list td,
+.tonasa-admin #changelist:has(.panel-bar) #result_list tbody th { padding-block: 13px; vertical-align: middle; }
+.tonasa-admin #result_list th.column-aksi { text-align: right; }
+
+.aksi-baris { display: flex; justify-content: flex-end; gap: 8px; }
+.tonasa-admin .aksi-ikon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; text-decoration: none; }
+.tonasa-admin .aksi-ubah { color: #1d4ed8; background: #e8f0ff; }
+.tonasa-admin .aksi-ubah:hover { background: #d3e2ff; }
+.tonasa-admin .aksi-hapus { color: #b42318; background: #fdecea; }
+.tonasa-admin .aksi-hapus:hover { background: #fad4cf; }
+
+.pil { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .75rem; font-weight: 650; line-height: 1.5; }
+.pil-aktif { color: #176a3b; background: #e5f5ec; }
+.pil-nonaktif { color: var(--muted); background: #eef1f6; }
+.pil-admin { color: var(--chrome-strong); background: var(--chrome-tint); }
+.pil-staf { color: var(--accent-ink); background: var(--accent-pale); }
+.chip-warna { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.chip-warna i { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+
+/* Tombol formulir dan halaman konfirmasi, senada dengan panel */
+.tonasa-admin :is(.submit-row input, .submit-row a.button, .object-tools a, form > div > a.cancel-link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  min-height: 40px;
+  padding: 0 16px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: .875rem;
+  font-weight: 650;
+  line-height: 1;
+  text-transform: none;
+  text-decoration: none;
+}
+.tonasa-admin :is(.submit-row input, .submit-row a.button, .object-tools a):hover { background: var(--darkened-bg); }
+.tonasa-admin .submit-row input.default,
+.tonasa-admin input[type="submit"].default { color: #fff; background: var(--chrome); border-color: var(--chrome); }
+.tonasa-admin .submit-row input.default:hover { background: var(--chrome-strong); }
+.tonasa-admin .submit-row p.deletelink-box { float: none; margin: 0 0 0 auto; }
+.tonasa-admin .submit-row a.deletelink { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; color: #fff; background: #b42318; border: 1px solid #b42318; border-radius: 10px; font-size: .875rem; font-weight: 650; line-height: 1; text-decoration: none; }
+.tonasa-admin .submit-row a.deletelink:hover { background: #8f1b12; }
+.tonasa-admin .aligned input:focus-visible, .tonasa-admin .aligned select:focus-visible, .tonasa-admin .aligned textarea:focus-visible { outline: 2px solid var(--chrome); outline-offset: 1px; }
+
+.tonasa-admin.delete-confirmation #content > :is(p, h2, ul, form) { max-width: 760px; }
+.tonasa-admin.delete-confirmation #content > p { margin: 0 0 14px; line-height: 1.55; }
+.tonasa-admin.delete-confirmation #content > h2 { margin: 16px 0 6px; color: var(--muted); font-size: .7rem; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
+.tonasa-admin.delete-confirmation #content > ul { padding-left: 20px; line-height: 1.7; }
+.tonasa-admin.delete-confirmation form > div { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.tonasa-admin.delete-confirmation form input[type="submit"] {
+  min-height: 40px;
+  padding: 0 16px;
+  color: #fff;
+  background: #b42318;
+  border: 1px solid #b42318;
+  border-radius: 10px;
+  font-size: .875rem;
+  font-weight: 650;
+  text-transform: none;
+  cursor: pointer;
+}
+.tonasa-admin.delete-confirmation form input[type="submit"]:hover { background: #8f1b12; }
+
+.panel-kosong { display: grid; justify-items: center; gap: 6px; padding: 44px 16px; text-align: center; border-top: 1px solid var(--line); }
+.panel-kosong-ikon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 6px; color: var(--chrome); background: var(--chrome-light); border-radius: 14px; }
+.panel-kosong strong { font-size: 1rem; }
+.panel-kosong p { max-width: 36ch; margin-bottom: 8px; color: var(--muted); font-size: .875rem; line-height: 1.5; }
+
+@media (width <= 767px) {
+  .tonasa-admin .aligned .form-row > div { width: 100%; }
+  .panel-tambah { margin-left: 0; }
+  .tonasa-admin .panel-bar #toolbar { width: 100%; margin-left: 0; }
+  .tonasa-admin #toolbar form #searchbar { width: 100%; }
+}
+@media (width <= 680px) {
+  .tonasa-admin #changelist { flex-direction: column; align-items: stretch; }
+  .tonasa-admin #changelist-filter { flex: auto; width: 100%; }
+  .tonasa-admin #changelist table { min-width: 470px; }
+  .tonasa-admin .aligned .form-row div.help { width: auto; margin: 5px 0 0; overflow-wrap: anywhere; }
+  .tonasa-admin .submit-row :is(input, a) { white-space: normal; }
+}

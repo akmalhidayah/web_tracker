@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% load aset %}
+
+{% block dark-mode-vars %}{% endblock %}
+
+{% block responsive %}
+  {{ block.super }}
+  <link rel="icon" type="image/png" sizes="32x32" href="{% aset_versi 'monitoring/favicon.png' %}">
+  <link rel="stylesheet" href="{% aset_versi 'monitoring/dashboard.css' %}">
+  <link rel="stylesheet" href="{% aset_versi 'monitoring/admin.css' %}">
+  {% if has_permission and not is_popup %}
+    <script src="{% aset_versi 'monitoring/navigasi.js' %}" defer></script>
+  {% endif %}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }}{% if has_permission and not is_popup %} tonasa-admin{% endif %}{% endblock %}
+
+{% block header %}
+  {% if has_permission %}
+    {% include 'monitoring/partials/sidebar.html' %}
+    {% include 'monitoring/partials/topbar.html' %}
+  {% else %}
+    <header id="header">
+      <a class="brand" href="{% url 'monitoring:monitoring' %}">
+        <img src="{% aset_versi 'monitoring/tracker-icon.png' %}" width="36" height="36" alt="">
+        <strong>Tracker Tonasa</strong>
+      </a>
+    </header>
+  {% endif %}
+{% endblock %}
+
+{% block content_title %}
+  {% if opts.app_label == 'monitoring' or opts.app_label == 'auth' %}
+    {% include 'monitoring/partials/panel_hero.html' %}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block content_subtitle %}
+  {% if opts.app_label != 'monitoring' and opts.app_label != 'auth' %}{{ block.super }}{% endif %}
+{% endblock %}
