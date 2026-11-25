@@ -19,6 +19,12 @@ ALLOWED_HOSTS = [
     ).split(",")
     if host.strip()
 ]
+if DEBUG:
+    ALLOWED_HOSTS.append("10.0.2.2")
+
+SOPIR_DEV_ORIGINS = (
+    {"http://127.0.0.1:8732", "http://localhost:8732"} if DEBUG else set()
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -27,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "monitoring",
 ]
 
@@ -40,7 +47,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = (
+    "config.urls_sopir" if DEBUG and os.environ.get("DJANGO_SOPIR_DEV_ONLY") == "1" else "config.urls"
+)
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

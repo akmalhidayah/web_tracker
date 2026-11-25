@@ -1,2 +1,3 @@
-<rect class="bar-{{ jenis }}" x="{{ batang.x }}" y="{{ batang.y }}" width="20" height="{{ batang.tinggi }}" rx="3"/>
-<text class="chart-value" x="{{ batang.label_x }}" y="{{ batang.label_y }}" text-anchor="middle">{{ batang.nilai }}</text>
+<rect class="bar-{{ jenis }}" x="{{ batang.x }}" y="{{ batang.y }}" width="22" height="{{ batang.tinggi }}" rx="4"/>
+<text class="chart-value{% if jenis == 'operasi' and batang.label_di_dalam %} chart-value-on-blue{% endif %}"
+  x="{{ batang.label_x }}" y="{{ batang.label_y }}" text-anchor="middle">{{ batang.nilai }}</text>

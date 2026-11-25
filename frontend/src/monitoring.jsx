@@ -15,12 +15,20 @@ const STATUS = {
   terlambat: "Data terlambat",
   "tanpa-data": "Belum ada posisi",
 };
+const ZONA_WITA = "Asia/Makassar";
 const JAM_WITA = new Intl.DateTimeFormat("id-ID", {
-  timeZone: "Asia/Makassar",
+  timeZone: ZONA_WITA,
   hour: "2-digit",
   minute: "2-digit",
   hour12: false,
 });
+const HARI_KALENDER = new Intl.DateTimeFormat("id-ID", { weekday: "short", timeZone: "UTC" });
+const TANGGAL_KALENDER = new Intl.DateTimeFormat("id-ID", { dateStyle: "full", timeZone: "UTC" });
+const TANGGAL_WITA = new Intl.DateTimeFormat("id-ID", { dateStyle: "full", timeZone: ZONA_WITA });
+const JAM_LENGKAP_WITA = new Intl.DateTimeFormat("id-ID", {
+  hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: ZONA_WITA,
+});
+const MILIDETIK_PER_HARI = 86_400_000;
 const BATAS_TERLAMBAT_MENIT = 10;
 const KUERI_KURANGI_GERAK = "(prefers-reduced-motion: reduce)";
 const normalisasi = (teks) => teks.trim().toUpperCase().replace(/[\s-]/g, "");
@@ -34,20 +42,75 @@ function RingkasanArmada({ truk }) {
   const tepatWaktu = truk.filter((unit) => unit.posisi && unit.status !== "terlambat");
   const perjalanan = tepatWaktu.filter(({ tahap }) => tahap === "kosong" || tahap === "bermuatan");
   const metrik = [
-    { label: "Armada aktif", nilai: truk.length, ikon: Truck, warna: "netral" },
-    { label: "Dalam perjalanan", nilai: perjalanan.length, ikon: Route, warna: "kosong" },
-    { label: "Muat atau bongkar", nilai: tepatWaktu.length - perjalanan.length, ikon: Boxes, warna: "muat" },
-    { label: "Data terlambat", nilai: truk.filter((unit) => unit.status === "terlambat").length, ikon: TriangleAlert, warna: "bermuatan" },
+    { label: "Armada aktif", nilai: truk.length, ikon: Truck, warna: "jingga" },
+    { label: "Dalam perjalanan", nilai: perjalanan.length, ikon: Route, warna: "ungu" },
+    { label: "Muat atau bongkar", nilai: tepatWaktu.length - perjalanan.length, ikon: Boxes, warna: "toska" },
+    { label: "Data terlambat", nilai: truk.filter((unit) => unit.status === "terlambat").length, ikon: TriangleAlert, warna: "merah-muda" },
   ];
   return (
     <dl className="metrics monitor-metrics" aria-label="Ringkasan seluruh armada simulasi">
       {metrik.map(({ label, nilai, ikon: Ikon, warna }) => (
-        <div className="metric monitor-metric" key={label}>
-          <dt><span className={`tile-icon tone-${warna}`}><Ikon size={19} aria-hidden="true" /></span>{label}</dt>
+        <div className={`metric monitor-metric monitor-metric-${warna}`} key={label}>
+          <dt><span className="tile-icon"><Ikon size={19} aria-hidden="true" /></span>{label}</dt>
           <dd>{nilai} <small>unit</small></dd>
         </div>
       ))}
     </dl>
+  );
+}
+
+function JamPeta() {
+  const [sekarang, aturSekarang] = useState(() => new Date());
+
+  useEffect(() => {
+    const interval = window.setInterval(() => aturSekarang(new Date()), 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return (
+    <h2 className="map-clock">
+      <time dateTime={sekarang.toISOString()}>
+        <span>{TANGGAL_WITA.format(sekarang)}</span>
+        <span className="map-clock-time">{JAM_LENGKAP_WITA.format(sekarang)} WITA</span>
+      </time>
+    </h2>
+  );
+}
+
+function KalenderPeta({ tanggal, tanggalPeta, hariIni, pilihTanggal, children }) {
+  const terpilih = new Date(tanggal);
+  const geser = (hari) => new Date(terpilih.getTime() + hari * MILIDETIK_PER_HARI);
+  const awal = (terpilih.getUTCDay() + 6) % 7;
+  const pekan = Array.from({ length: 7 }, (_, indeks) => geser(indeks - awal));
+  const iso = (hari) => hari.toISOString().slice(0, 10);
+
+  return (
+    <div className="map-calendar">
+      <div className="map-calendar-heading">
+        <JamPeta />
+        {children}
+      </div>
+      <div className="map-week-days" role="group" aria-label="Tanggal data peta">
+        {pekan.map((hari) => {
+          const nilai = iso(hari);
+          const punyaPosisi = nilai === tanggalPeta;
+          const label = TANGGAL_KALENDER.format(hari);
+
+          return (
+            <button
+              className="map-day" type="button" key={nilai} disabled={nilai > hariIni}
+              aria-label={punyaPosisi ? `${label}, data simulasi tersedia` : label}
+              aria-pressed={nilai === tanggal} aria-current={nilai === hariIni ? "date" : undefined}
+              onClick={() => pilihTanggal(nilai)}
+            >
+              <span>{HARI_KALENDER.format(hari)}</span>
+              <time dateTime={nilai}>{hari.getUTCDate()}</time>
+              {punyaPosisi && <span className="map-day-dot" aria-hidden="true" />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -96,6 +159,9 @@ function LegendaPeta({ ekspeditur }) {
 }
 
 function PetaArmada({ data, ekspeditur, truk, terpilih, pilihTruk }) {
+  const tanggalPeta = data.waktu.slice(0, 10);
+  const [tanggal, pilihTanggal] = useState(tanggalPeta);
+  const adaPosisi = tanggal === tanggalPeta;
   const wadah = useRef(null);
   const panel = useRef(null);
   const tombolLayarPenuh = useRef(null);
@@ -345,37 +411,41 @@ function PetaArmada({ data, ekspeditur, truk, terpilih, pilihTruk }) {
   return (
     <div className="map-slot" ref={wadah}>
       <section
-        className="panel map-panel" ref={panel} data-layar={layarPenuh} aria-labelledby="judul-peta"
+        className="panel map-panel" ref={panel} data-layar={layarPenuh} aria-label="Peta armada"
         role={layarPenuh === "jendela" ? "dialog" : undefined}
         aria-modal={layarPenuh === "jendela" ? true : undefined}
       >
-        <div className="panel-heading">
-          <div>
-            <h2 id="judul-peta">Peta armada</h2>
-            <p>Posisi truk di rute simulasi diperbarui otomatis.</p>
-          </div>
-          <div className="map-actions">
+        <KalenderPeta tanggal={tanggal} tanggalPeta={tanggalPeta} hariIni={data.hariIni ?? tanggalPeta} pilihTanggal={pilihTanggal}>
+          <div className="map-actions" role="group" aria-label="Kontrol peta">
             {!ringkasGagal && (
               <button
                 type="button" className="button map-detail-toggle" aria-pressed={detailPeta}
+                aria-label="Detail peta" title="Detail peta" disabled={!adaPosisi}
                 onClick={() => {
                   const detail = !detailPeta;
                   setDetailPeta(detail);
                   peta.current?.tampilkanDetail(detail);
                 }}
               >
-                <Layers size={16} aria-hidden="true" /> <span>Detail peta</span>
+                <Layers size={18} aria-hidden="true" />
               </button>
             )}
-            <button type="button" className="button map-fit-button" aria-label="Lihat seluruh rute" title="Lihat seluruh rute" onClick={() => peta.current?.lihatRute()}>
-              <LocateFixed size={16} aria-hidden="true" /> <span>Lihat seluruh rute</span>
+            <button type="button" className="button map-fit-button" aria-label="Lihat seluruh rute" title="Lihat seluruh rute" disabled={!adaPosisi} onClick={() => peta.current?.lihatRute()}>
+              <LocateFixed size={18} aria-hidden="true" />
             </button>
-            <button type="button" className="button map-fullscreen-toggle" ref={tombolLayarPenuh} onClick={ubahLayarPenuh}>
-              {layarPenuh ? <Minimize size={16} aria-hidden="true" /> : <Maximize size={16} aria-hidden="true" />} <span>{labelLayarPenuh}</span>
+            <button type="button" className="button map-fullscreen-toggle" ref={tombolLayarPenuh} onClick={ubahLayarPenuh}
+              aria-label={labelLayarPenuh} title={labelLayarPenuh} disabled={!adaPosisi && !layarPenuh}>
+              {layarPenuh ? <Minimize size={18} aria-hidden="true" /> : <Maximize size={18} aria-hidden="true" />}
             </button>
           </div>
-        </div>
-        <div className="map-frame">
+        </KalenderPeta>
+        {!adaPosisi && (
+          <div className="map-empty">
+            <p role="status">Belum ada data posisi untuk {TANGGAL_KALENDER.format(new Date(tanggal))} WITA.</p>
+            <button type="button" className="button" onClick={() => pilihTanggal(tanggalPeta)}>Kembali ke data simulasi</button>
+          </div>
+        )}
+        <div className="map-frame" hidden={!adaPosisi}>
           <div ref={elemen} className="map-canvas" />
           <LegendaPeta ekspeditur={data.ekspeditur} />
           {petaDasarTidakLengkap && (
@@ -413,7 +483,7 @@ function DetailTruk({ unit, ekspeditur, tutup }) {
   );
 }
 
-function DaftarArmada({ ekspeditur, truk, terpilih, pilihTruk, filter, ubahFilter }) {
+function DaftarArmada({ ekspeditur, truk, terpilih, pilihTruk, filter, ubahFilter, cakupanVendor }) {
   const daftar = useRef(null);
   const adaFilter = Boolean(filter.cari || filter.vendor || filter.status);
 
@@ -442,10 +512,12 @@ function DaftarArmada({ ekspeditur, truk, terpilih, pilihTruk, filter, ubahFilte
           <input type="search" aria-label="Cari nomor lambung" placeholder="Cari nomor lambung…" value={filter.cari} onChange={(event) => ubahFilter({ ...filter, cari: event.target.value })} />
         </label>
         <div className="selects">
-          <select aria-label="Filter ekspeditur" value={filter.vendor} onChange={(event) => ubahFilter({ ...filter, vendor: event.target.value })}>
-            <option value="">Semua ekspeditur</option>
-            {Object.values(ekspeditur).map(({ id, singkat }) => <option key={id} value={id}>{singkat}</option>)}
-          </select>
+          {!cakupanVendor && (
+            <select aria-label="Filter ekspeditur" value={filter.vendor} onChange={(event) => ubahFilter({ ...filter, vendor: event.target.value })}>
+              <option value="">Semua ekspeditur</option>
+              {Object.values(ekspeditur).map(({ id, singkat }) => <option key={id} value={id}>{singkat}</option>)}
+            </select>
+          )}
           <select aria-label="Filter status" value={filter.status} onChange={(event) => ubahFilter({ ...filter, status: event.target.value })}>
             <option value="">Semua status</option>
             {Object.entries(STATUS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
@@ -509,7 +581,7 @@ function Monitoring({ data }) {
       <RingkasanArmada truk={truk} />
       <div className="monitor-grid">
         <PetaArmada data={data} ekspeditur={ekspeditur} truk={tampil} terpilih={terpilih} pilihTruk={pilihTruk} />
-        <DaftarArmada ekspeditur={ekspeditur} truk={tampil} terpilih={terpilih} pilihTruk={pilihTruk} filter={filter} ubahFilter={ubahFilter} />
+        <DaftarArmada ekspeditur={ekspeditur} truk={tampil} terpilih={terpilih} pilihTruk={pilihTruk} filter={filter} ubahFilter={ubahFilter} cakupanVendor={data.cakupanVendor} />
       </div>
     </>
   );

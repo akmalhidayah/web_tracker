@@ -1,14 +1,27 @@
 from django import template
 from django.contrib import admin
+from django.urls import reverse
+
+from ..akun import ekspeditur_akun
 
 
 register = template.Library()
+register.simple_tag(ekspeditur_akun)
 
 
 @register.simple_tag(takes_context=True)
-def menu_master(context):
+def menu_master(context, ekspeditur_vendor=None):
     request = context["request"]
-    if not admin.site.has_permission(request):
+    if ekspeditur_vendor is not None:
+        links = []
+        for label, nama_url, icon in (
+            ("Pengemudi", "monitoring:master_pengemudi", "orang"),
+            ("Nomor Lambung", "monitoring:master_nomor_lambung", "truk"),
+        ):
+            url = reverse(nama_url)
+            links.append({"label": label, "url": url, "icon": icon, "current": request.path.startswith(url)})
+        return links
+    if not request.user.is_superuser or not admin.site.has_permission(request):
         return []
 
     apps = context.get("available_apps")

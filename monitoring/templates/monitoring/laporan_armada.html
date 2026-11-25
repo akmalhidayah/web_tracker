@@ -1,0 +1,82 @@
+{% extends 'monitoring/base.html' %}
+
+{% block judul %}Laporan Armada | Tracker Tonasa{% endblock %}
+
+{% block pengantar %}
+  <header class="panel report-heading">
+    <div class="report-heading-main">
+      <span class="report-heading-icon">{% include 'monitoring/partials/ikon.html' with ikon='truk' only %}</span>
+      <div>
+        <h1>Laporan Armada</h1>
+        {% if ekspeditur %}<p class="report-operator">{{ ekspeditur.nama }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="report-heading-meta"><span class="demo-label">Data contoh</span></div>
+  </header>
+{% endblock %}
+
+{% block konten %}
+  <section class="panel report-summary fleet-reports" aria-labelledby="judul-daftar-sesi">
+    <div class="panel-heading">
+      <h2 id="judul-daftar-sesi">Sesi kerja selesai</h2>
+      <form class="report-history-filter fleet-report-filter" method="get" action="{% url 'monitoring:laporan_armada' %}">
+        {% if filter_ekspeditur %}<input type="hidden" name="ekspeditur" value="{{ filter_ekspeditur }}">{% endif %}
+        <label for="tanggal-sesi">Tanggal mulai (WITA)</label>
+        <input type="date" id="tanggal-sesi" name="tanggal"
+          value="{{ tanggal|date:'Y-m-d' }}" max="{{ hari_ini|date:'Y-m-d' }}" required>
+        <label for="cari-sesi" class="visually-hidden">Cari pengemudi atau nomor lambung</label>
+        <input type="search" id="cari-sesi" name="q" value="{{ cari }}" maxlength="120"
+          placeholder="Cari pengemudi atau nomor lambung">
+        <button type="submit" class="button">Tampilkan</button>
+      </form>
+    </div>
+    {% if tab_ekspeditur %}
+      <nav class="fleet-report-tabs" aria-label="Filter ekspeditur">
+        {% for tab in tab_ekspeditur %}
+          <a href="{{ tab.url }}"{% if tab.aktif %} aria-current="true"{% endif %}>{{ tab.label }}</a>
+        {% endfor %}
+      </nav>
+    {% endif %}
+    {% if sesi %}
+      <div class="table-wrap" role="region" aria-labelledby="judul-daftar-sesi" tabindex="0">
+        <table class="report-summary-table fleet-report-table" aria-labelledby="judul-daftar-sesi">
+          <thead>
+            <tr>
+              <th scope="col" class="summary-name">Pengemudi</th>
+              <th scope="col" class="sesi-identitas">Nomor lambung</th>
+              {% if not ekspeditur %}<th scope="col" class="sesi-identitas">Ekspeditur</th>{% endif %}
+              <th scope="col">Mulai <small>WITA</small></th>
+              <th scope="col">Selesai <small>WITA</small></th>
+              <th scope="col">Durasi</th>
+              <th scope="col">Ritase <small>ret</small></th>
+              <th scope="col">Estimasi muatan <small>ton</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in sesi %}
+              <tr>
+                <th scope="row" class="summary-name">{{ item.pengemudi }}</th>
+                <td class="sesi-identitas"><span class="sesi-lambung">{{ item.nomor }}</span></td>
+                {% if not ekspeditur %}<td class="sesi-identitas">{{ item.ekspeditur }}</td>{% endif %}
+                <td><time datetime="{{ item.mulai|date:'c' }}">{{ item.mulai|date:'H:i' }}</time></td>
+                <td>
+                  <time datetime="{{ item.selesai|date:'c' }}">{{ item.selesai|date:'H:i' }}{% if item.lintas_hari %}
+                    <small>{{ item.selesai|date:'j M' }}</small>
+                  {% endif %}</time>
+                </td>
+                <td>{{ item.durasi }}</td>
+                <td class="sesi-ritase">{{ item.ritase }}</td>
+                <td>{{ item.estimasi_muatan }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="report-history-empty">
+        {% if cari %}Tidak ada sesi yang cocok{% else %}Belum ada data sesi{% endif %}
+        untuk {{ tanggal|date:'j F Y' }} WITA.
+      </p>
+    {% endif %}
+  </section>
+{% endblock %}

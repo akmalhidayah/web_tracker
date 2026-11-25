@@ -22,7 +22,7 @@
   }
 
   function tampilkan(terbuka) {
-    const label = terbuka ? 'Tutup menu navigasi' : 'Buka menu navigasi';
+    const label = terbuka ? 'Ringkas menu navigasi' : 'Perluas menu navigasi';
     root.dataset.sidebar = terbuka ? 'terbuka' : 'tertutup';
     tombol.setAttribute('aria-expanded', String(terbuka));
     tombol.setAttribute('aria-label', label);

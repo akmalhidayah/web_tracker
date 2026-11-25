@@ -37,7 +37,7 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ next }}">
           {% if form.errors %}
-            <p class="login-error" role="alert">Periksa kembali nama pengguna dan kata sandi Anda.</p>
+            <p class="login-error" role="alert">{{ form.non_field_errors.0|default:"Periksa kembali nama pengguna dan kata sandi Anda." }}</p>
           {% endif %}
           <div class="login-field">
             <label for="{{ form.username.id_for_label }}">Nama pengguna</label>

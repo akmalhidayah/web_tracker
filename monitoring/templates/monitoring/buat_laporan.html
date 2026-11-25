@@ -1,0 +1,47 @@
+{% extends 'monitoring/base.html' %}
+
+{% block judul %}Buat Laporan | Tracker Tonasa{% endblock %}
+{% block pengantar %}
+  <header class="panel report-heading">
+    <div class="report-heading-main">
+      <span class="report-heading-icon">{% include 'monitoring/partials/ikon.html' with ikon='tambah' only %}</span>
+      <div><h1>Buat Laporan</h1><p class="report-operator">{{ ekspeditur.nama }}</p></div>
+    </div>
+  </header>
+{% endblock %}
+
+{% block konten %}
+  <section class="panel report-entry" aria-labelledby="judul-laporan-harian">
+    <div class="panel-heading"><h2 id="judul-laporan-harian">Laporan harian</h2></div>
+    <form class="profile-form report-entry-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="profile-field-grid report-entry-fields">
+        <div class="profile-field">{{ form.tanggal.as_field_group }}</div>
+        <div class="profile-field">{{ form.ready.as_field_group }}</div>
+      </div>
+      <div class="table-wrap report-entry-scroll" role="region" aria-label="Realisasi dan target" tabindex="0">
+        <table class="report-entry-table">
+          <thead>
+            <tr><th scope="col">Indikator</th><th scope="col">Realisasi</th><th scope="col">Target</th></tr>
+          </thead>
+          <tbody>
+            {% for nama, satuan, realisasi, target in metrik %}
+              <tr>
+                <th scope="row">{{ nama }} <small>{{ satuan }}</small></th>
+                <td>
+                  <span class="visually-hidden">{{ realisasi.label_tag }}</span>{{ realisasi }}{{ realisasi.errors }}
+                </td>
+                <td><span class="visually-hidden">{{ target.label_tag }}</span>{{ target }}{{ target.errors }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="report-entry-actions">
+        <p>Pratinjau tersedia selama sesi login ini.</p>
+        <button class="button primary" type="submit">Simpan pratinjau</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

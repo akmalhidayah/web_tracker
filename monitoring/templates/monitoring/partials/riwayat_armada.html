@@ -46,13 +46,20 @@
       {% endif %}
     </table>
   </div>
-  {% if not riwayat.baris %}
+  {% if riwayat.pratinjau %}
+    <p class="report-history-empty">Pratinjau untuk sesi login ini.
+      <a class="text-link" href="{% url 'monitoring:buat_laporan' %}?tanggal={{ riwayat.dipilih|date:'Y-m-d' }}">Ubah pratinjau</a>
+    </p>
+  {% elif not riwayat.baris %}
     <p class="report-history-empty">
       Belum ada data untuk {{ riwayat.dipilih|date:'j F Y' }}.
       {% if riwayat.contoh %}
         <a class="text-link" href="{% url 'monitoring:laporan' %}?tanggal={{ riwayat.contoh|date:'Y-m-d' }}#riwayat-armada">
           Lihat data contoh {{ riwayat.contoh|date:'j F Y' }}
         </a>
+      {% endif %}
+      {% if ekspeditur %}
+        <a class="text-link" href="{% url 'monitoring:buat_laporan' %}?tanggal={{ riwayat.dipilih|date:'Y-m-d' }}">Buat laporan</a>
       {% endif %}
     </p>
   {% endif %}

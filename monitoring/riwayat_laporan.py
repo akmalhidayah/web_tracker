@@ -22,26 +22,40 @@ def _baris(nama, realisasi, target):
     }
 
 
-def riwayat_armada(nilai_tanggal):
-    hari_ini = timezone.localdate()
+def tanggal_laporan(nilai, hari_ini):
     try:
-        dipilih = min(date.fromisoformat(nilai_tanggal), hari_ini)
+        return min(date.fromisoformat(nilai), hari_ini)
     except ValueError:
-        dipilih = hari_ini
+        return hari_ini
+
+
+def riwayat_armada(nilai_tanggal, ekspeditur=None, laporan_demo=None):
+    hari_ini = timezone.localdate()
+    dipilih = tanggal_laporan(nilai_tanggal, hari_ini)
+    pratinjau = (laporan_demo or {}).get(dipilih.isoformat()) if ekspeditur is not None else None
+    daftar = (
+        {ekspeditur.kode: (ekspeditur.nama, ekspeditur.nama_singkat)}
+        if ekspeditur is not None else EKSPEDITUR
+    )
 
     catatan = LAPORAN_HARIAN.get(dipilih, {})
     baris, realisasi_harian, target_harian = [], [], []
-    for kode, (nama, _) in EKSPEDITUR.items():
-        if kode not in catatan:
+    for kode, (nama, _) in daftar.items():
+        if pratinjau is not None:
+            realisasi = tuple(pratinjau[kolom] for kolom in ("volume", "operasi", "ritase"))
+            target = tuple(pratinjau[kolom] for kolom in ("target_volume", "target_operasi", "target_ritase"))
+        elif kode in catatan:
+            ready, _, _, _, target_volume = LAPORAN[kode]
+            realisasi = catatan[kode]
+            target = (target_volume, ready, TARGET_RITASE_CONTOH[kode])
+        else:
             continue
-        ready, _, _, _, target_volume = LAPORAN[kode]
-        target = (target_volume, ready, TARGET_RITASE_CONTOH[kode])
-        realisasi_harian.append(catatan[kode])
+        realisasi_harian.append(realisasi)
         target_harian.append(target)
-        baris.append(_baris(nama, catatan[kode], target))
+        baris.append(_baris(nama, realisasi, target))
 
     total = None
-    if baris:
+    if baris and ekspeditur is None:
         total = _baris(
             "Total ekspeditur",
             tuple(map(sum, zip(*realisasi_harian))),
@@ -51,7 +65,11 @@ def riwayat_armada(nilai_tanggal):
     return {
         "hari_ini": hari_ini,
         "dipilih": dipilih,
-        "contoh": max((hari for hari in LAPORAN_HARIAN if hari <= hari_ini), default=None),
+        "contoh": max(
+            (hari for hari, hari_data in LAPORAN_HARIAN.items() if hari <= hari_ini and daftar.keys() & hari_data.keys()),
+            default=None,
+        ),
         "baris": baris,
         "total": total,
+        "pratinjau": pratinjau,
     }

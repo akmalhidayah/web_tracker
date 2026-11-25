@@ -4,7 +4,13 @@
 {% block judul %}Monitoring Armada | Tracker Tonasa{% endblock %}
 {% block kelas_konten %}monitoring-content{% endblock %}
 {% block pengantar %}
-  <h1 class="visually-hidden">Monitoring Armada</h1>
+  {% if ekspeditur %}
+    <header class="page-heading">
+      <div><h1>Monitoring Armada</h1><p>{{ ekspeditur.nama }}</p></div>
+    </header>
+  {% else %}
+    <h1 class="visually-hidden">Monitoring Armada</h1>
+  {% endif %}
 {% endblock %}
 
 {% block aset %}

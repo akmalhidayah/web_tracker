@@ -10,9 +10,6 @@
   --body-loud-color: var(--ink);
   --header-bg: var(--accent-pale);
   --header-link-color: var(--accent-ink);
-  --breadcrumbs-fg: var(--muted);
-  --breadcrumbs-link-fg: var(--accent-ink);
-  --breadcrumbs-bg: var(--paper);
   --link-fg: var(--accent-ink);
   --link-selected-fg: var(--accent-ink);
   --link-hover-color: #623308;
@@ -59,9 +56,8 @@ body.login #container {
 .tonasa-admin .sidebar .brand { color: white; }
 .tonasa-admin .topbar .profile-dropdown :is(a, button) { color: var(--ink); }
 .tonasa-admin .topbar .profile-dropdown :is(a, button):hover { color: var(--chrome-strong); }
-.tonasa-admin div.breadcrumbs { padding: 12px clamp(16px, 2.2vw, 36px) 0; overflow-wrap: anywhere; }
 .tonasa-admin main.content { padding: 0; }
-.tonasa-admin #content { width: auto; padding: clamp(16px, 2.2vw, 36px); }
+.tonasa-admin #content { width: auto; padding: 16px var(--workspace-gutter) 24px; }
 .tonasa-admin #content h1 {
   margin: 0 0 18px;
   color: var(--ink);
@@ -139,7 +135,6 @@ body.login #container {
 .tonasa-admin #result_list thead th a { color: var(--ink); }
 .tonasa-admin #result_list tbody tr:hover { background: #fafbfd; }
 
-.tonasa-admin:not(.dashboard) .colM #content-main form { max-width: 940px; }
 .tonasa-admin fieldset.module { overflow: hidden; }
 .tonasa-admin fieldset.module .form-row { padding: 15px 16px; }
 .tonasa-admin fieldset.module .form-row:last-child { border-bottom: 0; }
@@ -165,38 +160,37 @@ body.login #container {
 
 /* ===== Panel pengelolaan: Ekspeditur, Truk, Pengemudi, User Panel ===== */
 .tonasa-admin .panel-hero {
-  margin: 0 0 16px;
-  padding: 20px clamp(16px, 2.2vw, 28px);
+  margin: 0 0 12px;
+  padding: 9px 12px;
   background: linear-gradient(135deg, var(--chrome-light), #fff 80%);
-  border: 1px solid #f3d2d6;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px #a61b2912;
+  border: 1px solid var(--chrome-tint);
+  border-radius: 13px;
+  box-shadow: 0 1px 2px #30256d14;
 }
-.panel-hero-baris { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+.panel-hero-baris { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; }
 .panel-hero-ikon {
   display: grid;
   place-items: center;
   flex: none;
-  width: 46px;
-  height: 46px;
+  width: 32px;
+  height: 32px;
   color: var(--chrome);
   background: #fff;
-  border: 1px solid #f3d2d6;
-  border-radius: 12px;
+  border: 1px solid var(--chrome-tint);
+  border-radius: 8px;
 }
-.panel-hero-ikon svg { width: 22px; height: 22px; }
-.panel-hero-teks { flex: 1 1 220px; min-width: 0; }
-.tonasa-admin #content .panel-hero h1 { margin: 0; font-size: clamp(1.35rem, 2.4vw, 1.7rem); }
-.panel-hero-teks p { margin-top: 3px; color: var(--muted); font-size: .875rem; line-height: 1.45; }
+.panel-hero-teks { flex: 1 1 150px; min-width: 0; }
+.tonasa-admin #content .panel-hero h1 { margin: 0; font-size: var(--page-title-size); line-height: 1.2; }
+.panel-hero-teks p { margin-top: 2px; color: var(--muted); font-size: .8rem; line-height: 1.35; }
 .panel-tambah { margin-left: auto; }
 .panel-hero-nav {
   display: inline-flex;
   gap: 4px;
   max-width: 100%;
-  margin-top: 16px;
+  margin-top: 8px;
   padding: 4px;
   background: #fff;
-  border: 1px solid #f3d2d6;
+  border: 1px solid var(--chrome-tint);
   border-radius: 12px;
 }
 
@@ -219,6 +213,7 @@ body.login #container {
   cursor: pointer;
 }
 .tonasa-admin .panel-tombol:hover { background: var(--darkened-bg); }
+.tonasa-admin .panel-tambah { min-height: 36px; padding-inline: 12px; }
 .tonasa-admin .panel-tombol-utama { color: #fff; background: var(--chrome); border-color: var(--chrome); }
 .tonasa-admin .panel-tombol-utama:hover { color: #fff; background: var(--chrome-strong); border-color: var(--chrome-strong); }
 .panel-tombol svg { flex: none; }
@@ -291,7 +286,7 @@ body.login #container {
 .panel-status span { margin-right: 4px; }
 .tonasa-admin .panel-status a { padding: 4px 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; text-decoration: none; }
 .tonasa-admin .panel-status a:hover { background: var(--darkened-bg); }
-.tonasa-admin .panel-status a[aria-current] { color: var(--chrome-strong); background: var(--chrome-light); border-color: #f0c4ca; }
+.tonasa-admin .panel-status a[aria-current] { color: var(--chrome-strong); background: var(--chrome-light); border-color: var(--chrome-tint); }
 
 .tonasa-admin #changelist:has(.panel-bar) #changelist-filter { display: none; }
 .tonasa-admin #changelist:has(.panel-bar) #result_list thead th {

@@ -1,0 +1,104 @@
+{% extends 'monitoring/base.html' %}
+
+{% block judul %}{{ judul }} | Tracker Tonasa{% endblock %}
+
+{% block pengantar %}
+  <header class="panel report-heading">
+    <div class="report-heading-main">
+      <span class="report-heading-icon">{% include 'monitoring/partials/ikon.html' with ikon=ikon only %}</span>
+      <div>
+        <h1 id="judul-master">{{ judul }}</h1>
+        <p class="report-operator">{{ ekspeditur.nama }}</p>
+      </div>
+    </div>
+    {% if alamat_tambah %}
+      <a href="{{ alamat_tambah }}" class="button vendor-master-primary">
+        {% include 'monitoring/partials/ikon.html' with ikon='tambah' only %} Tambah {{ judul }}
+      </a>
+    {% endif %}
+  </header>
+{% endblock %}
+
+{% block konten %}
+  {% for message in messages %}
+    <p class="profile-notice" role="status">{{ message }}</p>
+  {% endfor %}
+  <section class="panel report-summary vendor-master" aria-labelledby="judul-master">
+    <div class="panel-heading">
+      <p>{{ halaman.paginator.count }} {% if daftar_pengemudi %}pengemudi{% else %}truk{% endif %}</p>
+      <form class="report-history-filter vendor-master-filter" method="get">
+        <label for="cari-master" class="visually-hidden">Cari {{ judul|lower }}</label>
+        <input type="search" id="cari-master" name="q" value="{{ cari }}" maxlength="120"
+          placeholder="{% if daftar_pengemudi %}Cari nama atau nomor HP{% else %}Cari nomor lambung atau plat{% endif %}">
+        <button type="submit" class="button">Cari</button>
+        {% if cari %}<a href="{{ request.path }}" class="button">Reset</a>{% endif %}
+      </form>
+    </div>
+    {% if halaman.object_list %}
+      <div class="table-wrap" role="region" aria-labelledby="judul-master" tabindex="0">
+        <table class="report-summary-table vendor-master-table" aria-labelledby="judul-master">
+          <thead>
+            <tr>
+              {% if daftar_pengemudi %}
+                <th scope="col" class="summary-name">Nama pengemudi</th>
+                <th scope="col">Nomor HP</th>
+                <th scope="col">Nomor lambung aktif</th>
+              {% else %}
+                <th scope="col" class="summary-name">Nomor lambung</th>
+                <th scope="col">Nomor polisi</th>
+                <th scope="col">Kapasitas <small>ton</small></th>
+              {% endif %}
+              <th scope="col">Status</th>
+              <th scope="col">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in halaman %}
+              <tr>
+                {% if daftar_pengemudi %}
+                  <th scope="row" class="summary-name">{{ item.nama }}</th>
+                  <td>{{ item.nomor_hp|default:'—' }}</td>
+                  <td>
+                    <div class="vendor-master-trucks">
+                      {% for penugasan in item.penugasan_aktif %}
+                        <span class="sesi-lambung">{{ penugasan.truk.nomor }}</span>
+                      {% empty %}
+                        —
+                      {% endfor %}
+                    </div>
+                  </td>
+                {% else %}
+                  <th scope="row" class="summary-name"><span class="sesi-lambung">{{ item.nomor }}</span></th>
+                  <td>{{ item.plat|default:'—' }}</td>
+                  <td>{{ item.kapasitas|floatformat:'-2'|default:'—' }}</td>
+                {% endif %}
+                <td>
+                  <span class="status-pill vendor-master-status{% if item.aktif %} is-active{% endif %}">
+                    {% if item.aktif %}Aktif{% else %}Nonaktif{% endif %}
+                  </span>
+                </td>
+                <td><a href="{% url nama_url_ubah item.pk %}" class="button vendor-master-edit"
+                  aria-label="Ubah {{ item }}">Ubah</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if halaman.has_other_pages %}
+        <nav class="vendor-master-pages" aria-label="Halaman {{ judul|lower }}">
+          {% if halaman.has_previous %}
+            <a class="button" href="{% querystring page=halaman.previous_page_number %}">Sebelumnya</a>
+          {% endif %}
+          <span>Halaman {{ halaman.number }} dari {{ halaman.paginator.num_pages }}</span>
+          {% if halaman.has_next %}
+            <a class="button" href="{% querystring page=halaman.next_page_number %}">Berikutnya</a>
+          {% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="report-history-empty">
+        {% if cari %}Tidak ada data yang cocok dengan pencarian.{% else %}Belum ada {{ judul|lower }} terdaftar.{% endif %}
+      </p>
+    {% endif %}
+  </section>
+{% endblock %}

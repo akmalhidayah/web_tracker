@@ -1,27 +1,33 @@
 {% extends 'monitoring/base.html' %}
 {% load tz %}
 
-{% block judul %}Monitoring Armada per Ekspeditur | Tracker Tonasa{% endblock %}
+{% block judul %}Lihat Laporan | Tracker Tonasa{% endblock %}
 
 {% block pengantar %}
   <header class="panel report-heading">
     <div class="report-heading-main">
       <span class="report-heading-icon">{% include 'monitoring/partials/ikon.html' with ikon='laporan' only %}</span>
-      <h1>Monitoring Armada per Ekspeditur</h1>
+      <div>
+        <h1>Lihat Laporan</h1>
+        {% if ekspeditur %}<p class="report-operator">{{ ekspeditur.nama }}</p>{% endif %}
+      </div>
     </div>
-    <time class="report-heading-meta" datetime="{{ waktu|timezone:'Asia/Makassar'|date:'c' }}">
-      {{ waktu|timezone:'Asia/Makassar'|date:'j F Y' }},
-      <span>{{ waktu|timezone:'Asia/Jakarta'|date:'H:i' }} WIB / {{ waktu|timezone:'Asia/Makassar'|date:'H:i' }} WITA</span>
-    </time>
+    {% if riwayat.pratinjau %}
+      <p class="report-heading-meta">Pratinjau · <time datetime="{{ riwayat.dipilih|date:'Y-m-d' }}">{{ riwayat.dipilih|date:'j F Y' }} WITA</time></p>
+    {% elif baris %}
+      <time class="report-heading-meta" datetime="{{ waktu|timezone:'Asia/Makassar'|date:'c' }}">
+        {{ waktu|timezone:'Asia/Makassar'|date:'j F Y' }} ·
+        <span>{{ waktu|timezone:'Asia/Makassar'|date:'H:i' }} WITA</span>
+      </time>
+    {% endif %}
   </header>
 {% endblock %}
 
 {% block konten %}
+  {% for message in messages %}<p class="profile-notice" role="status">{{ message }}</p>{% endfor %}
+  {% if baris %}
   <div class="report-visuals">
     <section class="panel report-chart" aria-labelledby="judul-grafik-armada">
-      <div class="panel-heading">
-        <h2 id="judul-grafik-armada">Grafik realisasi armada</h2>
-      </div>
       {% include 'monitoring/partials/grafik_armada.html' with grafik=grafik only %}
     </section>
 
@@ -30,40 +36,34 @@
         <h2 id="judul-ekspeditur">Realisasi per ekspeditur</h2>
       </div>
       <div class="table-wrap" role="region" aria-labelledby="judul-ekspeditur" tabindex="0">
-        <table>
-          <colgroup span="1"></colgroup>
-          <colgroup span="3"></colgroup>
-          <colgroup span="3"></colgroup>
+        <table class="report-summary-table" aria-labelledby="judul-ekspeditur">
           <thead>
             <tr>
-              <th scope="col" rowspan="2">Ekspeditur</th>
-              <th class="armada-group" scope="colgroup" colspan="3">Armada</th>
-              <th scope="col" rowspan="2">Ritase</th>
-              <th scope="col" rowspan="2">Rata-rata<br>ritase</th>
-              <th scope="col" rowspan="2">Volume<br>(ton)</th>
-            </tr>
-            <tr>
-              <th scope="col">Ready</th>
-              <th scope="col">Operasi</th>
+              <th scope="col" class="summary-name">Ekspeditur</th>
+              <th scope="col">Ready <small>unit</small></th>
+              <th scope="col">Operasi <small>unit</small></th>
               <th scope="col">Utilisasi</th>
+              <th scope="col">Ritase <small>ret</small></th>
+              <th scope="col">Rata-rata <small>ritase/unit</small></th>
+              <th scope="col">Volume <small>ton</small></th>
             </tr>
           </thead>
           <tbody>
             {% for item in baris %}
               <tr>
-                <th scope="row">{{ item.nama }}</th>
+                <th scope="row" class="summary-name">{{ item.nama }}</th>
                 <td>{{ item.ready }}</td>
-                <td>{{ item.operasi }}</td>
+                <td class="summary-operasi">{{ item.operasi }}</td>
                 <td><span class="report-utilisasi{% if not item.utilisasi %} is-zero{% endif %}">{{ item.utilisasi }}%</span></td>
-                <td>{{ item.ritase }}</td>
+                <td class="summary-ritase">{{ item.ritase }}</td>
                 <td>{% if item.rata_ritase is None %}—{% else %}{{ item.rata_ritase|floatformat:1 }}{% endif %}</td>
-                <td>{{ item.volume }}</td>
+                <td class="summary-volume">{{ item.volume }}</td>
               </tr>
             {% endfor %}
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row">Total armada</th>
+              <th scope="row" class="summary-name">Total armada</th>
               <td>{{ total.ready }}</td>
               <td>{{ total.operasi }}</td>
               <td>{{ total.utilisasi }}%</td>
@@ -76,5 +76,6 @@
       </div>
     </section>
   </div>
-  {% include 'monitoring/partials/riwayat_armada.html' with riwayat=riwayat only %}
+  {% endif %}
+  {% include 'monitoring/partials/riwayat_armada.html' with riwayat=riwayat ekspeditur=ekspeditur only %}
 {% endblock %}

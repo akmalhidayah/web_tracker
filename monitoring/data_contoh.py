@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -96,17 +96,65 @@ TRUK = (
     ("DT-92", "tambahan", "bermuatan", RUTE[10], 3, 2, 82),
 )
 
+# Sesi selesai simulasi. Nama dan nomor lambung mengikuti akun serta armada demo.
+# Pengemudi, ekspeditur, nomor lambung, jam mulai WITA, jam selesai WITA, ritase.
+SESI_ARMADA_CONTOH = {
+    WAKTU_CONTOH.date(): (
+        ("Rahmat", "topabiring", "DT-07", time(6, 0), time(9, 25), 3),
+        ("Rahmat", "topabiring", "DT-03", time(9, 50), time(12, 20), 2),
+        ("Hasan", "fajar", "DT-31", time(5, 55), time(9, 15), 3),
+        ("Hasan", "fajar", "DT-32", time(9, 35), time(12, 40), 2),
+        ("Yusuf", "koperasi", "DT-51", time(6, 10), time(10, 5), 3),
+        ("Yusuf", "koperasi", "DT-52", time(10, 24), time(12, 52), 2),
+        ("Andi", "prima", "DT-61", time(6, 20), time(9, 40), 2),
+        ("Andi", "prima", "DT-63", time(10, 0), time(12, 35), 2),
+        ("Dedi", "tambahan", "DT-91", time(7, 0), time(9, 30), 1),
+        ("Dedi", "tambahan", "DT-92", time(9, 50), time(12, 30), 2),
+    ),
+    WAKTU_CONTOH.date() - timedelta(days=1): (
+        ("Rahmat", "topabiring", "DT-07", time(22, 15), time(2, 30), 3),
+    ),
+}
+
+
+def sesi_armada_contoh(tanggal, kode_ekspeditur, cari, nama_ekspeditur):
+    hasil = []
+    kata = cari.casefold()
+    kapasitas_ton = 30
+    for pengemudi, kode, nomor, jam_mulai, jam_selesai, ritase in SESI_ARMADA_CONTOH.get(tanggal, ()):
+        if kode_ekspeditur is not None and kode != kode_ekspeditur:
+            continue
+        if kata not in pengemudi.casefold() and kata not in nomor.casefold():
+            continue
+        mulai = datetime.combine(tanggal, jam_mulai, WAKTU_CONTOH.tzinfo)
+        selesai = datetime.combine(tanggal, jam_selesai, WAKTU_CONTOH.tzinfo)
+        if selesai < mulai:
+            selesai += timedelta(days=1)
+        jam, menit = divmod((selesai - mulai) // timedelta(minutes=1), 60)
+        hasil.append({
+            "pengemudi": pengemudi,
+            "ekspeditur": nama_ekspeditur.get(kode, EKSPEDITUR[kode][1]),
+            "nomor": nomor,
+            "mulai": mulai,
+            "selesai": selesai,
+            "lintas_hari": selesai.date() != tanggal,
+            "durasi": f"{jam} j {menit:02d} m",
+            "ritase": ritase,
+            "estimasi_muatan": ritase * kapasitas_ton,
+        })
+    return sorted(hasil, key=lambda sesi: sesi["mulai"], reverse=True)
+
 
 def data_peta(daftar_ekspeditur, daftar_truk):
     posisi_contoh = {
-        nomor: {
+        (nomor, kode): {
             "tahap": tahap,
             "posisi": posisi,
             "ritase": ritase,
             "baterai": baterai,
             "terakhir": (WAKTU_CONTOH - timedelta(minutes=umur)).isoformat(),
         }
-        for nomor, _, tahap, posisi, umur, ritase, baterai in TRUK
+        for nomor, kode, tahap, posisi, umur, ritase, baterai in TRUK
     }
     return {
         "waktu": WAKTU_CONTOH.isoformat(),
@@ -120,7 +168,7 @@ def data_peta(daftar_ekspeditur, daftar_truk):
             {
                 "nomor": nomor,
                 "ekspeditur": kode,
-                **posisi_contoh.get(nomor.upper(), {"posisi": None}),
+                **posisi_contoh.get((nomor.upper(), kode), {"posisi": None}),
             }
             for nomor, kode in daftar_truk
         ],

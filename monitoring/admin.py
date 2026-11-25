@@ -5,8 +5,12 @@ from django.db.models import Count, Sum
 from django.utils.formats import date_format, number_format
 from django.utils.html import format_html
 from django.utils.timezone import localtime
+from django.utils.decorators import method_decorator
+from django.views.decorators.debug import sensitive_post_parameters
 
-from .models import Ekspeditur, Pengemudi, Truk
+from .akun_sopir import simpan_akun_dan_penugasan_sopir
+from .forms import PengemudiForm, PenggunaTambahForm, PenggunaUbahForm
+from .models import AksesVendor, Ekspeditur, Pengemudi, Truk
 from .panel import (
     SEMUA,
     PanelAdminMixin,
@@ -60,7 +64,20 @@ class PenggunaAdmin(KhususAdministrator, PanelAdminMixin, UserAdmin):
     panel_tambah = "User"
     panel_deskripsi = "Akun yang dapat masuk ke dashboard ini beserta peran aksesnya."
     panel_cari = "Cari nama, username, atau email…"
-    list_display = ("nama_lengkap", "username", "email", "peran", "status", "bergabung")
+    form = PenggunaUbahForm
+    add_form = PenggunaTambahForm
+    informasi = ("Informasi pribadi", {"fields": ("first_name", "last_name", "email")})
+    akses = ("Akses dashboard", {"fields": ("peran", "ekspeditur", "is_active")})
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        informasi,
+        akses,
+        ("Tanggal", {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (*UserAdmin.add_fieldsets, informasi, akses)
+    list_display = ("nama_lengkap", "username", "email", "peran", "ekspeditur", "status", "bergabung")
+    list_filter = ("is_superuser", "is_active")
+    list_select_related = ("akses_vendor__ekspeditur",)
 
     @admin.display(description="Nama", ordering="first_name")
     def nama_lengkap(self, obj):
@@ -69,12 +86,28 @@ class PenggunaAdmin(KhususAdministrator, PanelAdminMixin, UserAdmin):
     @admin.display(description="Peran")
     def peran(self, obj):
         if obj.is_superuser:
-            kelas, teks = "pil-admin", "Administrator"
-        elif obj.is_staff:
-            kelas, teks = "pil-staf", "Staf"
+            kelas, teks = "pil-admin", "Admin"
         else:
-            kelas, teks = "pil-nonaktif", "Operator"
+            kelas, teks = "pil-staf", "Vendor"
         return format_html('<span class="pil {}">{}</span>', kelas, teks)
+
+    @admin.display(description="Ekspeditur", ordering="akses_vendor__ekspeditur__nama")
+    def ekspeditur(self, obj):
+        akses = getattr(obj, "akses_vendor", None)
+        if obj.is_superuser:
+            return "—"
+        return chip_ekspeditur(akses.ekspeditur) if akses else "Belum ditetapkan"
+
+    def save_model(self, request, obj, form, change):
+        admin_akun = form.cleaned_data["peran"] == form.ADMIN
+        obj.is_staff = obj.is_superuser = admin_akun
+        super().save_model(request, obj, form, change)
+        if admin_akun:
+            AksesVendor.objects.filter(pengguna=obj).delete()
+        else:
+            AksesVendor.objects.update_or_create(
+                pengguna=obj, defaults={"ekspeditur": form.cleaned_data["ekspeditur"]}
+            )
 
     @admin.display(description="Status", ordering="is_active")
     def status(self, obj):
@@ -88,28 +121,23 @@ class PenggunaAdmin(KhususAdministrator, PanelAdminMixin, UserAdmin):
         pengguna = User.objects
         return [
             kartu("Total pengguna", pengguna.count(), "Akun yang terdaftar."),
-            kartu("Administrator", pengguna.filter(is_superuser=True).count(), "Akses penuh, termasuk User Panel."),
-            kartu("Staf", pengguna.filter(is_staff=True, is_superuser=False).count(), "Dapat mengelola data sesuai izin."),
-            kartu("Aktif", pengguna.filter(is_active=True).count(), "Dapat masuk saat ini."),
+            kartu("Admin", pengguna.filter(is_superuser=True).count(), "Akses penuh, termasuk User Panel."),
+            kartu("Vendor", pengguna.filter(is_superuser=False).count(), "Akses dibatasi ke Ekspeditur akun."),
+            kartu("Aktif", pengguna.filter(is_active=True).count(), "Akun dengan status aktif."),
         ]
 
     def panel_tab(self, request):
         return [
             SEMUA,
             {
-                "label": "Administrator",
+                "label": "Admin",
                 "params": {"is_superuser__exact": "1"},
                 "saring": {"is_superuser": True},
             },
             {
-                "label": "Staf",
-                "params": {"is_staff__exact": "1", "is_superuser__exact": "0"},
-                "saring": {"is_staff": True, "is_superuser": False},
-            },
-            {
-                "label": "Operator",
-                "params": {"is_staff__exact": "0", "is_superuser__exact": "0"},
-                "saring": {"is_staff": False, "is_superuser": False},
+                "label": "Vendor",
+                "params": {"is_superuser__exact": "0"},
+                "saring": {"is_superuser": False},
             },
         ]
 
@@ -157,7 +185,7 @@ class GrupAdmin(KhususAdministrator, PanelAdminMixin, GroupAdmin):
 
 
 @admin.register(Ekspeditur)
-class EkspediturAdmin(PanelAdminMixin, admin.ModelAdmin):
+class EkspediturAdmin(KhususAdministrator, PanelAdminMixin, admin.ModelAdmin):
     panel_ikon = "vendor"
     panel_tambah = "Ekspeditur"
     panel_deskripsi = "Perusahaan pemilik armada. Nama singkat dan warnanya dipakai di Monitoring dan Laporan."
@@ -194,7 +222,7 @@ class EkspediturAdmin(PanelAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(Truk)
-class TrukAdmin(PanelAdminMixin, admin.ModelAdmin):
+class TrukAdmin(KhususAdministrator, PanelAdminMixin, admin.ModelAdmin):
     panel_ikon = "truk"
     panel_tambah = "Truk"
     panel_deskripsi = "Nomor lambung, nomor polisi, dan kapasitas tiap armada ekspeditur."
@@ -238,15 +266,32 @@ class TrukAdmin(PanelAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(Pengemudi)
-class PengemudiAdmin(PanelAdminMixin, admin.ModelAdmin):
+@method_decorator(sensitive_post_parameters("pin_baru"), name="changeform_view")
+class PengemudiAdmin(KhususAdministrator, PanelAdminMixin, admin.ModelAdmin):
     panel_ikon = "orang"
     panel_tambah = "Pengemudi"
     panel_deskripsi = "Pengemudi per ekspeditur beserta nomor HP yang dipakai untuk masuk ke aplikasi."
     panel_cari = "Cari nama, nomor HP, atau ekspeditur…"
-    list_display = ("nama", "ekspeditur_chip", "nomor_hp_tampil", "status")
+    form = PengemudiForm
+    fieldsets = (
+        (None, {"fields": ("nama", "ekspeditur", "aktif")}),
+        ("Akun aplikasi sopir", {"fields": ("nomor_hp", "pin_baru")}),
+        ("Penugasan", {"fields": ("truk_ditugaskan",)}),
+    )
+    list_display = ("nama", "ekspeditur_chip", "nomor_hp_tampil", "login_mobile", "status")
     list_filter = ("ekspeditur", "aktif")
     search_fields = ("nama", "nomor_hp", "ekspeditur__nama")
-    list_select_related = ("ekspeditur",)
+    list_select_related = ("ekspeditur", "akun_sopir")
+
+    def save_model(self, request, obj, form, change):
+        sebelumnya = Pengemudi.objects.select_for_update().get(pk=obj.pk) if change else None
+        super().save_model(request, obj, form, change)
+        simpan_akun_dan_penugasan_sopir(
+            obj,
+            pin_baru=form.cleaned_data["pin_baru"],
+            truk_ids={truk.pk for truk in form.cleaned_data["truk_ditugaskan"]},
+            ekspeditur_sebelumnya=sebelumnya.ekspeditur_id if sebelumnya else None,
+        )
 
     @admin.display(description="Ekspeditur", ordering="ekspeditur__nama")
     def ekspeditur_chip(self, obj):
@@ -255,6 +300,12 @@ class PengemudiAdmin(PanelAdminMixin, admin.ModelAdmin):
     @admin.display(description="Nomor HP", ordering="nomor_hp")
     def nomor_hp_tampil(self, obj):
         return obj.nomor_hp or "—"
+
+    @admin.display(description="Login mobile")
+    def login_mobile(self, obj):
+        if getattr(obj, "akun_sopir", None) is None:
+            return "Belum diaktifkan"
+        return pil_status(obj.aktif and obj.ekspeditur.aktif)
 
     @admin.display(description="Status", ordering="aktif")
     def status(self, obj):

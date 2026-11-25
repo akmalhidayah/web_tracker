@@ -1,36 +1,45 @@
 {% load aset navigasi %}
-{% menu_master as master_links %}
+{% ekspeditur_akun user as ekspeditur_vendor %}
+{% menu_master ekspeditur_vendor as master_links %}
 <aside class="sidebar" id="sidebar-utama">
-  <a class="brand" href="{% url 'monitoring:monitoring' %}">
+  <a class="brand" href="{% url 'monitoring:monitoring' %}" title="{% if ekspeditur_vendor %}Dashboard Vendor{% else %}Dashboard Admin{% endif %}">
     <img src="{% aset_versi 'monitoring/tracker-icon.png' %}" width="42" height="42" alt="">
-    <strong>Dashboard Admin</strong>
+    <span class="brand-text">
+      {% if ekspeditur_vendor %}
+        <strong>Dashboard Vendor</strong><small>{{ ekspeditur_vendor.nama }}</small>
+      {% else %}
+        <strong>Dashboard Admin</strong>
+      {% endif %}
+    </span>
   </a>
   <nav aria-label="Menu utama">
     <span class="nav-label">Operasional</span>
-    <a class="nav-item" href="{% url 'monitoring:monitoring' %}"{% if menu == 'monitoring' %} aria-current="page"{% endif %}>
-      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='monitoring' only %}</span>Monitoring
+    <a class="nav-item" href="{% url 'monitoring:monitoring' %}" title="Monitoring"{% if menu == 'monitoring' %} aria-current="page"{% endif %}>
+      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='monitoring' only %}</span>
+      <span class="nav-text">Monitoring</span>
     </a>
-    <a class="nav-item" href="{% url 'monitoring:laporan' %}"{% if menu == 'laporan' %} aria-current="page"{% endif %}>
-      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='laporan' only %}</span>Laporan
+    {% if ekspeditur_vendor %}
+      <a class="nav-item" href="{% url 'monitoring:buat_laporan' %}" title="Buat Laporan"{% if menu == 'buat_laporan' %} aria-current="page"{% endif %}>
+        <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='tambah' only %}</span>
+        <span class="nav-text">Buat Laporan</span>
+      </a>
+    {% endif %}
+    <a class="nav-item" href="{% url 'monitoring:laporan' %}" title="Lihat Laporan"{% if menu == 'laporan' %} aria-current="page"{% endif %}>
+      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='laporan' only %}</span>
+      <span class="nav-text">Lihat Laporan</span>
+    </a>
+    <a class="nav-item" href="{% url 'monitoring:laporan_armada' %}" title="Laporan Armada"{% if menu == 'laporan_armada' %} aria-current="page"{% endif %}>
+      <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='truk' only %}</span>
+      <span class="nav-text">Laporan Armada</span>
     </a>
     {% if master_links %}
-      <span class="nav-label nav-label-secondary">Pengelolaan</span>
-      <details class="master-nav"{% if request.resolver_match.namespace == 'admin' %} open{% endif %}>
-        <summary class="nav-item">
-          <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon='master' only %}</span>
-          Data Master
-          <span class="disclosure-arrow">{% include 'monitoring/partials/ikon.html' with ikon='chevron' only %}</span>
-        </summary>
-        <ul>
-          {% for link in master_links %}
-            <li>
-              <a class="nav-item" href="{{ link.url }}"{% if request.path == link.url %} aria-current="page"{% elif link.current %} aria-current="location"{% endif %}>
-                <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon=link.icon only %}</span>{{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </details>
+      <span class="nav-label nav-label-secondary">Data Master</span>
+      {% for link in master_links %}
+        <a class="nav-item" href="{{ link.url }}" title="{{ link.label }}"{% if request.path == link.url %} aria-current="page"{% elif link.current %} aria-current="location"{% endif %}>
+          <span class="nav-icon">{% include 'monitoring/partials/ikon.html' with ikon=link.icon only %}</span>
+          <span class="nav-text">{{ link.label }}</span>
+        </a>
+      {% endfor %}
     {% endif %}
   </nav>
 </aside>
